@@ -1,6 +1,6 @@
 import { IsEmail, Length, MaxLength } from 'class-validator';
 
-export class AuthCredentialsDto {
+export class SignUpCredentialsDto {
   @Length(2, 64, {
     message: 'First name length must be from 2 to 64 chars',
   })
