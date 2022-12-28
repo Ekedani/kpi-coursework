@@ -9,12 +9,13 @@ import { UserRepository } from '../repositories/user.repository';
 import { SignUpCredentialsDto } from '../dto/sign-up-credentials.dto';
 import { SignInCredentialsDto } from '../dto/sign-in-credentials.dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(UserRepository)
     private userRepository: UserRepository,
+    private jwtService: JwtService,
   ) {}
 
   async signUp(signUpCredentialsDto: SignUpCredentialsDto) {
@@ -22,14 +23,18 @@ export class AuthService {
     try {
       const salt = await bcrypt.genSalt();
       const hashedPassword = await bcrypt.hash(password, salt);
-      const user = await this.userRepository.save({
+      await this.userRepository.save({
         firstName,
         lastName,
         email,
         role: 'user',
         password: hashedPassword,
       });
+      const payload = { email };
+      const accessToken = this.jwtService.sign(payload);
+      return { accessToken };
     } catch (e) {
+      console.log(e)
       if (e instanceof HttpException) {
         throw e;
       } else {
@@ -43,7 +48,9 @@ export class AuthService {
     try {
       const user = await this.userRepository.findOneBy({ email });
       if (user && (await bcrypt.compare(password, user.password))) {
-        console.log('Success', user);
+        const payload = { email };
+        const accessToken = this.jwtService.sign(payload);
+        return { accessToken };
       } else {
         throw new UnauthorizedException();
       }
