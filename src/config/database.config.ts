@@ -1,4 +1,5 @@
 import { registerAs } from '@nestjs/config';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 export default registerAs('database', () => {
   return {
@@ -9,5 +10,6 @@ export default registerAs('database', () => {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     autoLoadEntities: true,
+    namingStrategy: new SnakeNamingStrategy(),
   };
 });
