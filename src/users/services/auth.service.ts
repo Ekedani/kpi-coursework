@@ -1,33 +1,37 @@
-import { HttpException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
 import { SignUpCredentialsDto } from '../dto/sign-up-credentials.dto';
 import { SignInCredentialsDto } from '../dto/sign-in-credentials.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { UserRole } from '../common/user-role.enum';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userRepository: UserRepository,
     private jwtService: JwtService,
-  ) {
-  }
+  ) {}
 
   async signUp(signUpCredentialsDto: SignUpCredentialsDto) {
     const { firstName, lastName, email, password } = signUpCredentialsDto;
     try {
       const salt = await bcrypt.genSalt();
       const hashedPassword = await bcrypt.hash(password, salt);
-      const newUser = this.userRepository.create({
+      const newUser = await this.userRepository.save({
         firstName,
         lastName,
         email,
-        role: 'user',
+        role: UserRole.User,
         password: hashedPassword,
       });
-      console.log(newUser);
-      await this.userRepository.save(newUser);
       const payload = {
+        id: newUser.id,
         firstName: newUser.firstName,
         lastName: newUser.lastName,
         email: newUser.email,
