@@ -6,6 +6,9 @@ export class User {
   id: string;
 
   @Column()
+  apiKey: string;
+
+  @Column()
   firstName: string;
 
   @Column()

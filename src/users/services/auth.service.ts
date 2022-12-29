@@ -1,10 +1,4 @@
-import {
-  HttpException,
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { HttpException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
 import { SignUpCredentialsDto } from '../dto/sign-up-credentials.dto';
 import { SignInCredentialsDto } from '../dto/sign-in-credentials.dto';
@@ -16,25 +10,33 @@ export class AuthService {
   constructor(
     private userRepository: UserRepository,
     private jwtService: JwtService,
-  ) {}
+  ) {
+  }
 
   async signUp(signUpCredentialsDto: SignUpCredentialsDto) {
     const { firstName, lastName, email, password } = signUpCredentialsDto;
     try {
       const salt = await bcrypt.genSalt();
       const hashedPassword = await bcrypt.hash(password, salt);
-      await this.userRepository.save({
+      const newUser = this.userRepository.create({
         firstName,
         lastName,
         email,
         role: 'user',
         password: hashedPassword,
       });
-      const payload = { email };
+      console.log(newUser);
+      await this.userRepository.save(newUser);
+      const payload = {
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        role: newUser.role,
+      };
       const accessToken = this.jwtService.sign(payload);
       return { accessToken };
     } catch (e) {
-      console.log(e)
+      console.log(e);
       if (e instanceof HttpException) {
         throw e;
       } else {
