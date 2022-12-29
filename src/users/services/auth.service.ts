@@ -10,6 +10,7 @@ import { SignInCredentialsDto } from '../dto/sign-in-credentials.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '../common/user-role.enum';
+import { JwtPayload } from '../common/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +31,7 @@ export class AuthService {
         role: UserRole.User,
         password: hashedPassword,
       });
-      const payload = {
+      const payload: JwtPayload = {
         id: newUser.id,
         firstName: newUser.firstName,
         lastName: newUser.lastName,
@@ -40,7 +41,6 @@ export class AuthService {
       const accessToken = this.jwtService.sign(payload);
       return { accessToken };
     } catch (e) {
-      console.log(e);
       if (e instanceof HttpException) {
         throw e;
       } else {
@@ -54,7 +54,13 @@ export class AuthService {
     try {
       const user = await this.userRepository.findOneBy({ email });
       if (user && (await bcrypt.compare(password, user.password))) {
-        const payload = { email };
+        const payload: JwtPayload = {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          role: user.role,
+        };
         const accessToken = this.jwtService.sign(payload);
         return { accessToken };
       } else {
