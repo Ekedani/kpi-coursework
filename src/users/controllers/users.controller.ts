@@ -8,12 +8,16 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
 import { AuthGuard } from '@nestjs/passport';
+import { Roles } from '../decorators/roles.decorator';
+import { RoleGuard } from '../guards/role.guard';
 
 @Controller('users')
 @UseGuards(AuthGuard())
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Roles('admin')
+  @UseGuards(RoleGuard)
   @Get()
   findAll() {
     return this.usersService.findAll();

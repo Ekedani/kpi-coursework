@@ -7,7 +7,6 @@ import databaseConfig from './config/database.config';
 
 @Module({
   imports: [
-    UsersModule,
     ConfigModule.forRoot({
       load: [databaseConfig],
     }),
@@ -18,6 +17,7 @@ import databaseConfig from './config/database.config';
         ...configService.get('database'),
       }),
     }),
+    UsersModule,
     CinemasModule,
   ],
   controllers: [],
