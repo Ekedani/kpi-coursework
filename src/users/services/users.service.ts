@@ -13,4 +13,8 @@ export class UsersService {
   remove(id: string) {
     return `This action removes a user with id #${id}`;
   }
+
+  generateApiKey(id: string) {
+    return `Placeholder`;
+  }
 }
