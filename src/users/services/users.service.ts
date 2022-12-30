@@ -1,4 +1,5 @@
 import {
+  HttpException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -18,7 +19,18 @@ export class UsersService {
   }
 
   async remove(id: string) {
-    return `This action removes a user with id #${id}`;
+    try {
+      const result = await this.userRepository.delete({ id });
+      if (result.affected === 0) {
+        throw new NotFoundException();
+      }
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async generateApiKey(id: string) {
@@ -33,7 +45,11 @@ export class UsersService {
         return { apiKey: newKey };
       }
     } catch (e) {
-      throw new InternalServerErrorException();
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new InternalServerErrorException();
+      }
     }
   }
 }
