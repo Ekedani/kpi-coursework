@@ -13,6 +13,7 @@ import { Roles } from '../decorators/roles.decorator';
 import { RoleGuard } from '../guards/role.guard';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../entities/user.entity';
+import { UserRole } from '../common/user-role.enum';
 
 @Controller('users')
 @UseGuards(AuthGuard())
@@ -20,7 +21,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Roles('admin')
+  @Roles(UserRole.Admin)
   @UseGuards(RoleGuard)
   findAll() {
     return this.usersService.findAll();
@@ -28,7 +29,7 @@ export class UsersController {
 
   @Get(':id')
   findOne(@Param('id') id: string, @GetUser() user: User) {
-    if (user.id !== id && user.role !== 'admin') {
+    if (user.id !== id && user.role !== UserRole.Admin) {
       throw new ForbiddenException();
     } else {
       return this.usersService.findOne(id);
@@ -37,7 +38,7 @@ export class UsersController {
 
   @Delete(':id')
   remove(@Param('id') id: string, @GetUser() user: User) {
-    if (user.id !== id && user.role !== 'admin') {
+    if (user.id !== id && user.role !== UserRole.Admin) {
       throw new ForbiddenException();
     } else {
       return this.usersService.remove(id);
@@ -46,7 +47,7 @@ export class UsersController {
 
   @Post(':id/api-key')
   generateApiKey(@Param('id') id: string, @GetUser() user: User) {
-    if (user.id !== id && user.role !== 'admin') {
+    if (user.id !== id && user.role !== UserRole.Admin) {
       throw new ForbiddenException();
     } else {
       return this.usersService.generateApiKey(id);
