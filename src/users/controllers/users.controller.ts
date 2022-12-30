@@ -1,10 +1,10 @@
 import {
   Controller,
+  Delete,
   Get,
   Param,
-  Delete,
-  UseGuards,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -16,9 +16,9 @@ import { RoleGuard } from '../guards/role.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get()
   @Roles('admin')
   @UseGuards(RoleGuard)
-  @Get()
   findAll() {
     return this.usersService.findAll();
   }

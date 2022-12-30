@@ -1,20 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { UserRepository } from '../repositories/user.repository';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UsersService {
-  findAll() {
+  constructor(private userRepository: UserRepository) {}
+  async findAll() {
     return `This action returns all users`;
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     return `This action returns a user with id #${id}`;
   }
 
-  remove(id: string) {
+  async remove(id: string) {
     return `This action removes a user with id #${id}`;
   }
 
-  generateApiKey(id: string) {
-    return `Placeholder`;
+  async generateApiKey(id: string) {
+    try {
+      const newKey = randomUUID();
+      const user = await this.userRepository.findOneBy({ id });
+      if (!user) {
+        throw new NotFoundException();
+      } else {
+        user.apiKey = newKey;
+        await this.userRepository.save(user);
+        return { apiKey: newKey };
+      }
+    } catch (e) {
+      throw new InternalServerErrorException();
+    }
   }
 }
