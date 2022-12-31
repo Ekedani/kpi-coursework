@@ -22,7 +22,7 @@ export class UserRepository extends Repository<User> {
 
     return {
       data: result,
-      count: total,
+      total: total,
     };
   }
 }

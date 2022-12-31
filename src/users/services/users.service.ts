@@ -15,7 +15,7 @@ export class UsersService {
   async findAll(findUsersDto: FindUsersDto) {
     try {
       const users = await this.userRepository.findAll(findUsersDto);
-      return { users };
+      return { data: users.data, totalPages: users.total };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
