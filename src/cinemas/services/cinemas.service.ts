@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCinemaDto } from './dto/create-cinema.dto';
-import { UpdateCinemaDto } from './dto/update-cinema.dto';
+import { CreateCinemaDto } from '../dto/create-cinema.dto';
+import { UpdateCinemaDto } from '../dto/update-cinema.dto';
 
 @Injectable()
 export class CinemasService {
