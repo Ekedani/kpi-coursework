@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ImdbService } from './imdb.service';
+import { TmdbService } from './tmdb.service';
 
-describe('ImdbService', () => {
-  let service: ImdbService;
+describe('TmdbService', () => {
+  let service: TmdbService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ImdbService],
+      providers: [TmdbService],
     }).compile();
 
-    service = module.get<ImdbService>(ImdbService);
+    service = module.get<TmdbService>(TmdbService);
   });
 
   it('should be defined', () => {
