@@ -6,13 +6,23 @@ import {
 } from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
 import { randomUUID } from 'crypto';
-import { use } from 'passport';
+import { FindUsersDto } from '../dto/find-users.dto';
 
 @Injectable()
 export class UsersService {
   constructor(private userRepository: UserRepository) {}
-  async findAll() {
-    return `This action returns all users`;
+
+  async findAll(findUsersDto: FindUsersDto) {
+    try {
+      const users = await this.userRepository.findAll(findUsersDto);
+      return { users };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async findOne(id: string) {

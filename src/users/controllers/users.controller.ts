@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   ForbiddenException,
@@ -14,6 +15,7 @@ import { RoleGuard } from '../guards/role.guard';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../entities/user.entity';
 import { UserRole } from '../common/user-role.enum';
+import { FindUsersDto } from '../dto/find-users.dto';
 
 @Controller('users')
 @UseGuards(AuthGuard())
@@ -23,8 +25,8 @@ export class UsersController {
   @Get()
   @Roles(UserRole.Admin)
   @UseGuards(RoleGuard)
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Body() findUsersDto: FindUsersDto) {
+    return this.usersService.findAll(findUsersDto);
   }
 
   @Get(':id')
