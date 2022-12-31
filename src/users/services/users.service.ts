@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
 import { randomUUID } from 'crypto';
+import { use } from 'passport';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +16,27 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return `This action returns a user with id #${id}`;
+    try {
+      const user = await this.userRepository.findOneBy({ id });
+      if (!user) {
+        throw new NotFoundException();
+      } else {
+        return {
+          id: user.id,
+          apiKey: user.apiKey,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          email: user.email,
+        };
+      }
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async remove(id: string) {
