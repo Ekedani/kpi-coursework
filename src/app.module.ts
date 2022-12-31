@@ -3,6 +3,7 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CinemasModule } from './cinemas/cinemas.module';
+import { MediaModule } from './media/media.module';
 import databaseConfig from './config/database.config';
 
 @Module({
@@ -19,6 +20,7 @@ import databaseConfig from './config/database.config';
     }),
     UsersModule,
     CinemasModule,
+    MediaModule,
   ],
   controllers: [],
   providers: [],
