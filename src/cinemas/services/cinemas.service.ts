@@ -1,4 +1,8 @@
-import { HttpException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateCinemaDto } from '../dto/create-cinema.dto';
 import { UpdateCinemaDto } from '../dto/update-cinema.dto';
 import { CinemaRepository } from '../repositories/cinema.repository';
@@ -8,6 +12,15 @@ import { FindCinemasDto } from '../dto/find-cinemas.dto';
 export class CinemasService {
   constructor(private cinemaRepository: CinemaRepository) {}
   async create(createCinemaDto: CreateCinemaDto) {
+    try {
+      return createCinemaDto;
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async findAll(findCinemaDto: FindCinemasDto) {
@@ -25,20 +38,50 @@ export class CinemasService {
   }
 
   async findOne(id: string) {
-    return `This action returns a #${id} cinema`;
+    try {
+      return `This action returns a #${id} cinema`;
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async update(id: string, updateCinemaDto: UpdateCinemaDto) {
-    return `This action updates a #${id} cinema`;
+    try {
+      return `This action updates a #${id} cinema`;
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async remove(id: string) {
-    return `This action removes a #${id} cinema`;
+    try {
+      return `This action removes a #${id} cinema`;
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async findPicture(id: string) {
     try {
-    } catch (e) {}
-    return id;
+      return `This action updates a #${id} cinema picture`;
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 }
