@@ -1,19 +1,20 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { UserRepository } from '../repositories/user.repository';
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
   constructor(private userRepository: UserRepository) {}
-  validateKey(apiKey: string) {
-    const user = this.userRepository.findOneBy({ apiKey });
-    return user !== null;
+  async validateKey(apiKey: string) {
+    try {
+      const user = await this.userRepository.findOneBy({ apiKey });
+      return user !== null;
+    } catch (e) {
+      return false;
+    }
   }
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
-    return this.validateKey(req.headers['x-api-key']);
+    return await this.validateKey(req.headers['x-api-key']);
   }
 }
