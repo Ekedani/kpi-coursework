@@ -18,6 +18,7 @@ import { UserRole } from '../../users/common/user-role.enum';
 import { Roles } from '../../users/decorators/roles.decorator';
 import { RoleGuard } from '../../users/guards/role.guard';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiKeyGuard } from '../../users/guards/api-key.guard';
 
 @Controller('cinemas')
 export class CinemasController {
@@ -32,19 +33,19 @@ export class CinemasController {
   }
 
   @Get()
-  /*@UseGuards(ApiKeyGuard)*/
+  @UseGuards(ApiKeyGuard)
   findAll() {
     return this.cinemasService.findAll();
   }
 
   @Get(':id')
-  /*@UseGuards(ApiKeyGuard)*/
+  @UseGuards(ApiKeyGuard)
   findOne(@Param('id') id: string) {
     return this.cinemasService.findOne(id);
   }
 
   @Get(':id/picture')
-  /*@UseGuards(ApiKeyGuard)*/
+  @UseGuards(ApiKeyGuard)
   findPicture(@Param('id') id: string) {
     return this.cinemasService.findPicture(id);
   }
