@@ -15,6 +15,7 @@ export class UsersService {
   async findAll(findUsersDto: FindUsersDto) {
     try {
       const users = await this.userRepository.findAll(findUsersDto);
+      users.data.forEach((user) => delete user.password);
       return { data: users.data, totalPages: users.total };
     } catch (e) {
       if (e instanceof HttpException) {
