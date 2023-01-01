@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateCinemaDto } from '../dto/create-cinema.dto';
 import { UpdateCinemaDto } from '../dto/update-cinema.dto';
 
@@ -6,7 +6,17 @@ import { UpdateCinemaDto } from '../dto/update-cinema.dto';
 export class CinemasService {
   constructor() {}
   async create(createCinemaDto: CreateCinemaDto) {
-    return 'This action adds a new cinema';
+    /*try {
+      const cinemas = await this.userRepository.findAll(findUsersDto);
+      cinemas.data.forEach((cinema) => delete cinema.picture);
+      return { data: cinemas.data, totalPages: cinemas.total };
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }*/
   }
 
   async findAll() {
