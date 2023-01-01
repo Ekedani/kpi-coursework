@@ -24,36 +24,34 @@ export class CinemasController {
   constructor(private readonly cinemasService: CinemasService) {}
 
   @Post()
-  @UseGuards(AuthGuard())
   @Roles(UserRole.Admin)
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard(), RoleGuard)
   @UseInterceptors(FileInterceptor('picture'))
   create(@UploadedFile() picture, @Body() createCinemaDto: CreateCinemaDto) {
     return this.cinemasService.create(createCinemaDto);
   }
 
   @Get()
-  /* TODO: API KEY guard */
+  /*@UseGuards(ApiKeyGuard)*/
   findAll() {
     return this.cinemasService.findAll();
   }
 
   @Get(':id')
-  /* TODO: API KEY guard */
+  /*@UseGuards(ApiKeyGuard)*/
   findOne(@Param('id') id: string) {
     return this.cinemasService.findOne(id);
   }
 
   @Get(':id/picture')
-  /* TODO: API KEY guard */
+  /*@UseGuards(ApiKeyGuard)*/
   findPicture(@Param('id') id: string) {
     return this.cinemasService.findPicture(id);
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard())
   @Roles(UserRole.Admin)
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard(), RoleGuard)
   @UseInterceptors(FileInterceptor('picture'))
   update(
     @Param('id') id: string,
@@ -64,9 +62,8 @@ export class CinemasController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard())
   @Roles(UserRole.Admin)
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard(), RoleGuard)
   remove(@Param('id') id: string) {
     return this.cinemasService.remove(id);
   }
