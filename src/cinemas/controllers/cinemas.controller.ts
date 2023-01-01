@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
+  Res,
 } from '@nestjs/common';
 import { CinemasService } from '../services/cinemas.service';
 import { CreateCinemaDto } from '../dto/create-cinema.dto';
@@ -20,6 +21,7 @@ import { RoleGuard } from '../../users/guards/role.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiKeyGuard } from '../../users/guards/api-key.guard';
 import { FindCinemasDto } from '../dto/find-cinemas.dto';
+import { raw } from 'express';
 
 @Controller('cinemas')
 export class CinemasController {
@@ -30,7 +32,7 @@ export class CinemasController {
   @UseGuards(AuthGuard(), RoleGuard)
   @UseInterceptors(FileInterceptor('picture'))
   create(@UploadedFile() picture, @Body() createCinemaDto: CreateCinemaDto) {
-    return this.cinemasService.create(createCinemaDto);
+    return this.cinemasService.create(picture, createCinemaDto);
   }
 
   @Get()
@@ -47,8 +49,10 @@ export class CinemasController {
 
   @Get(':id/picture')
   @UseGuards(ApiKeyGuard)
-  findPicture(@Param('id') id: string) {
-    return this.cinemasService.findPicture(id);
+  async findPicture(@Param('id') id: string, @Res() res) {
+    const path = await this.cinemasService.findPicture(id);
+    res.setHeader('content-type', 'image/jpeg');
+    res.sendFile(path, { root: 'uploads' });
   }
 
   @Patch(':id')
@@ -60,7 +64,7 @@ export class CinemasController {
     @UploadedFile() picture,
     @Body() updateCinemaDto: UpdateCinemaDto,
   ) {
-    return this.cinemasService.update(id, updateCinemaDto);
+    return this.cinemasService.update(id, picture, updateCinemaDto);
   }
 
   @Delete(':id')

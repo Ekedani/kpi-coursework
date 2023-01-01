@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateCinemaDto {
   @IsNotEmpty()
@@ -6,12 +12,14 @@ export class CreateCinemaDto {
   @MaxLength(64)
   readonly name: string;
 
+  @IsOptional()
   @IsString()
   @MaxLength(1000)
   readonly description: string;
 
   @IsNotEmpty()
   @IsString()
+  @IsUrl()
   @MaxLength(128)
   readonly link: string;
 }
