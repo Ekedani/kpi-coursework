@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { CinemasService } from '../services/cinemas.service';
 import { CreateCinemaDto } from '../dto/create-cinema.dto';
@@ -30,9 +31,19 @@ export class CinemasController {
     return this.cinemasService.findOne(+id);
   }
 
+  @Get(':id/picture')
+  findPicture(@Param('id') id: string) {
+    return this.cinemasService.findPicture(id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCinemaDto: UpdateCinemaDto) {
     return this.cinemasService.update(+id, updateCinemaDto);
+  }
+
+  @Put(':id/picture')
+  updatePicture(@Param('id') id: string) {
+    return this.cinemasService.updatePicture(id);
   }
 
   @Delete(':id')

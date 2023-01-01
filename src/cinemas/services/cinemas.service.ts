@@ -23,4 +23,12 @@ export class CinemasService {
   remove(id: number) {
     return `This action removes a #${id} cinema`;
   }
+
+  findPicture(id: string) {
+    return id;
+  }
+
+  updatePicture(id: string) {
+    return id;
+  }
 }
