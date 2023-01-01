@@ -19,6 +19,7 @@ import { Roles } from '../../users/decorators/roles.decorator';
 import { RoleGuard } from '../../users/guards/role.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiKeyGuard } from '../../users/guards/api-key.guard';
+import { FindCinemasDto } from '../dto/find-cinemas.dto';
 
 @Controller('cinemas')
 export class CinemasController {
@@ -34,8 +35,8 @@ export class CinemasController {
 
   @Get()
   @UseGuards(ApiKeyGuard)
-  findAll() {
-    return this.cinemasService.findAll();
+  findAll(@Body() findCinemaDto: FindCinemasDto) {
+    return this.cinemasService.findAll(findCinemaDto);
   }
 
   @Get(':id')

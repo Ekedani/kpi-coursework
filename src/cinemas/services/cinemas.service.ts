@@ -1,13 +1,18 @@
 import { HttpException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateCinemaDto } from '../dto/create-cinema.dto';
 import { UpdateCinemaDto } from '../dto/update-cinema.dto';
+import { CinemaRepository } from '../repositories/cinema.repository';
+import { FindCinemasDto } from '../dto/find-cinemas.dto';
 
 @Injectable()
 export class CinemasService {
-  constructor() {}
+  constructor(private cinemaRepository: CinemaRepository) {}
   async create(createCinemaDto: CreateCinemaDto) {
-    /*try {
-      const cinemas = await this.userRepository.findAll(findUsersDto);
+  }
+
+  async findAll(findCinemaDto: FindCinemasDto) {
+    try {
+      const cinemas = await this.cinemaRepository.findAll(findCinemaDto);
       cinemas.data.forEach((cinema) => delete cinema.picture);
       return { data: cinemas.data, totalPages: cinemas.total };
     } catch (e) {
@@ -16,11 +21,7 @@ export class CinemasService {
       } else {
         throw new InternalServerErrorException();
       }
-    }*/
-  }
-
-  async findAll() {
-    return `This action returns all cinemas`;
+    }
   }
 
   async findOne(id: string) {

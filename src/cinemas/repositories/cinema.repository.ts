@@ -4,7 +4,7 @@ import { Cinema } from '../entities/cinema.entity';
 import { FindCinemasDto } from '../dto/find-cinemas.dto';
 
 @Injectable()
-export class UserRepository extends Repository<Cinema> {
+export class CinemaRepository extends Repository<Cinema> {
   constructor(private dataSource: DataSource) {
     super(Cinema, dataSource.createEntityManager());
   }
