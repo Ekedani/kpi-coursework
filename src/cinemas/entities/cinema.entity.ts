@@ -5,7 +5,7 @@ export class Cinema {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ nullable: false })
   name: string;
 
   @Column()
@@ -14,6 +14,6 @@ export class Cinema {
   @Column()
   picture: string;
 
-  @Column()
+  @Column({ nullable: false })
   link: string;
 }

@@ -4,31 +4,30 @@ import { UpdateCinemaDto } from '../dto/update-cinema.dto';
 
 @Injectable()
 export class CinemasService {
-  create(createCinemaDto: CreateCinemaDto) {
+  constructor() {}
+  async create(createCinemaDto: CreateCinemaDto) {
     return 'This action adds a new cinema';
   }
 
-  findAll() {
+  async findAll() {
     return `This action returns all cinemas`;
   }
 
-  findOne(id: number) {
+  async findOne(id: string) {
     return `This action returns a #${id} cinema`;
   }
 
-  update(id: number, updateCinemaDto: UpdateCinemaDto) {
+  async update(id: string, updateCinemaDto: UpdateCinemaDto) {
     return `This action updates a #${id} cinema`;
   }
 
-  remove(id: number) {
+  async remove(id: string) {
     return `This action removes a #${id} cinema`;
   }
 
-  findPicture(id: string) {
-    return id;
-  }
-
-  updatePicture(id: string) {
+  async findPicture(id: string) {
+    try {
+    } catch (e) {}
     return id;
   }
 }
