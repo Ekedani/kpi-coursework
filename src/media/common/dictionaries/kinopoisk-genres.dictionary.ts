@@ -22,7 +22,7 @@ export const KinopoiskGenresDictionary = [
   {
     id: 5,
     genreRu: 'детектив',
-    genreEn: 'Detective',
+    genreEn: 'Mystery',
   },
   {
     id: 6,
@@ -87,7 +87,7 @@ export const KinopoiskGenresDictionary = [
   {
     id: 18,
     genreRu: 'мультфильм',
-    genreEn: 'Cartoon',
+    genreEn: 'Animation',
   },
   {
     id: 19,
@@ -147,7 +147,7 @@ export const KinopoiskGenresDictionary = [
   {
     id: 30,
     genreRu: 'реальное ТВ',
-    genreEn: 'TV Movie',
+    genreEn: 'Reality',
   },
   {
     id: 31,
@@ -157,11 +157,11 @@ export const KinopoiskGenresDictionary = [
   {
     id: 32,
     genreRu: 'ток-шоу',
-    genreEn: 'Talk show',
+    genreEn: 'Talk',
   },
   {
     id: 33,
     genreRu: 'детский',
-    genreEn: 'Child',
+    genreEn: 'Kids',
   },
 ];
