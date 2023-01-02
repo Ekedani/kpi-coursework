@@ -18,8 +18,8 @@ export class CinemasService {
     });
   }
 
-  async findAll(findCinemaDto: FindCinemasDto) {
-    const cinemas = await this.cinemaRepository.findAll(findCinemaDto);
+  async findAll(findCinemasDto: FindCinemasDto) {
+    const cinemas = await this.cinemaRepository.findAll(findCinemasDto);
     cinemas.data.forEach((cinema) => {
       if (!cinema.picture) {
         delete cinema.picture;

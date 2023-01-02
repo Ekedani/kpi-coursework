@@ -1,11 +1,11 @@
 import {
-  Body,
   Controller,
   Delete,
   ForbiddenException,
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
@@ -25,7 +25,7 @@ export class UsersController {
   @Get()
   @Roles(UserRole.Admin)
   @UseGuards(RoleGuard)
-  findAll(@Body() findUsersDto: FindUsersDto) {
+  findAll(@Query() findUsersDto: FindUsersDto) {
     return this.usersService.findAll(findUsersDto);
   }
 

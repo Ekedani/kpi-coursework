@@ -9,7 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
-  Res,
+  Res, Query,
 } from '@nestjs/common';
 import { CinemasService } from '../services/cinemas.service';
 import { CreateCinemaDto } from '../dto/create-cinema.dto';
@@ -36,8 +36,8 @@ export class CinemasController {
 
   @Get()
   @UseGuards(ApiKeyGuard)
-  findAll(@Body() findCinemaDto: FindCinemasDto) {
-    return this.cinemasService.findAll(findCinemaDto);
+  findAll(@Query() findCinemasDto: FindCinemasDto) {
+    return this.cinemasService.findAll(findCinemasDto);
   }
 
   @Get(':id')
