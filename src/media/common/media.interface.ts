@@ -3,10 +3,13 @@ export interface MediaInterface {
   nameOriginal: string;
   year: number;
   rating: {
-    [key: string]: number;
+    [rating: string]: number;
+  };
+  ids: {
+    [service: string]: string;
   };
   images: Array<string>;
   links: {
-    [key: string]: string;
+    [service: string]: string;
   };
 }

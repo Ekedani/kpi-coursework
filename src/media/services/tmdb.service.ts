@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { FindMediaDto } from '../dto/find-media.dto';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class TmdbService {
@@ -16,6 +17,16 @@ export class TmdbService {
   }
 
   async findMedia(findMediaDto: FindMediaDto) {
-
+    const { data } = await firstValueFrom(
+      this.httpService.get(`${this.apiHost}/search/movie`, {
+        params: {
+          api_key: this.apiKey,
+          include_adult: true,
+          query: findMediaDto.keyword,
+          page: findMediaDto.page,
+        },
+      }),
+    );
+    return data;
   }
 }

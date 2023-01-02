@@ -1,7 +1,15 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiKeyGuard } from '../../users/guards/api-key.guard';
 import { AggregationService } from '../services/aggregation.service';
 import { FindMediaDto } from '../dto/find-media.dto';
+import { GetSingleMediaDto } from '../dto/get-single-media.dto';
+import { GetMediaRatingDto } from '../dto/get-media-rating.dto';
 
 @Controller('media')
 @UseGuards(ApiKeyGuard)
@@ -13,13 +21,21 @@ export class MediaController {
     return this.aggregationService.findMedia(findMediaDto);
   }
 
-  @Get(':imdbId')
-  getSingleMedia() {
-    return null;
+  @Get('single')
+  getSingleMedia(@Query() getSingleMediaDto: GetSingleMediaDto) {
+    if (getSingleMediaDto.kinopoiskId || getSingleMediaDto.tmdbId) {
+      return this.aggregationService.getSingleMedia(getSingleMediaDto);
+    } else {
+      throw new BadRequestException();
+    }
   }
 
-  @Get(':imdbId/rating')
-  getRating() {
-    return null;
+  @Get('single/rating')
+  getRating(@Query() getMediaRatingDto: GetMediaRatingDto) {
+    if (getMediaRatingDto.kinopoiskId || getMediaRatingDto.tmdbId) {
+      return this.aggregationService.getMediaRating(getMediaRatingDto);
+    } else {
+      throw new BadRequestException();
+    }
   }
 }
