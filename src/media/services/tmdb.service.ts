@@ -5,8 +5,8 @@ import { FindMediaDto } from '../dto/find-media.dto';
 
 @Injectable()
 export class TmdbService {
-  private apiHost: string;
-  private apiKey: string;
+  private readonly apiHost: string;
+  private readonly apiKey: string;
   constructor(
     private readonly httpService: HttpService,
     private configService: ConfigService,
@@ -15,5 +15,7 @@ export class TmdbService {
     this.apiKey = configService.get('media.tmdbKey');
   }
 
-  async findMedia(findMediaDto: FindMediaDto) {}
+  async findMedia(findMediaDto: FindMediaDto) {
+
+  }
 }

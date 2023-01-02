@@ -1,7 +1,6 @@
 import {
   IsInt,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   Max,
@@ -12,17 +11,17 @@ import { Transform } from 'class-transformer';
 export class FindMediaDto {
   @IsString()
   @IsNotEmpty()
-  readonly query: string;
+  readonly keyword: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   @Min(0)
   @Max(10)
   @Transform(({ value }) => Number.parseInt(value))
   readonly ratingFrom: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   @Min(0)
   @Max(10)
   @Transform(({ value }) => Number.parseInt(value))
