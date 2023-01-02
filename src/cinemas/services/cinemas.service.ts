@@ -8,6 +8,7 @@ import { CreateCinemaDto } from '../dto/create-cinema.dto';
 import { UpdateCinemaDto } from '../dto/update-cinema.dto';
 import { CinemaRepository } from '../repositories/cinema.repository';
 import { FindCinemasDto } from '../dto/find-cinemas.dto';
+import { unlinkSync } from 'fs';
 
 @Injectable()
 export class CinemasService {
@@ -22,7 +23,6 @@ export class CinemasService {
         link: createCinemaDto.link,
       });
     } catch (e) {
-      console.log(e);
       if (e instanceof HttpException) {
         throw e;
       } else {
@@ -34,7 +34,12 @@ export class CinemasService {
   async findAll(findCinemaDto: FindCinemasDto) {
     try {
       const cinemas = await this.cinemaRepository.findAll(findCinemaDto);
-      return { data: cinemas.data, totalPages: cinemas.total };
+      cinemas.data.forEach((cinema) => {
+        if (!cinema.picture) {
+          delete cinema.picture;
+        }
+      });
+      return { data: cinemas.data, total: cinemas.total, pages: cinemas.pages };
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -50,7 +55,9 @@ export class CinemasService {
       if (!cinema) {
         throw new NotFoundException();
       } else {
-        delete cinema.picture;
+        if (!cinema.picture) {
+          delete cinema.picture;
+        }
         return cinema;
       }
     } catch (e) {
@@ -69,7 +76,7 @@ export class CinemasService {
         throw new NotFoundException();
       }
       if (picture) {
-        //TODO: Multer delete picture
+        unlinkSync(`./uploads/${cinema.picture}`);
       }
       return await this.cinemaRepository.save({
         id: cinema.id,
@@ -87,11 +94,13 @@ export class CinemasService {
 
   async remove(id: string) {
     try {
-      const cinema = this.cinemaRepository.findOneBy({ id });
+      const cinema = await this.cinemaRepository.findOneBy({ id });
       if (!cinema) {
         throw new NotFoundException();
       }
-      //TODO: Multer delete picture
+      if (cinema.picture) {
+        unlinkSync(`./uploads/${cinema.picture}`);
+      }
       await this.cinemaRepository.delete({ id });
     } catch (e) {
       if (e instanceof HttpException) {
@@ -104,7 +113,12 @@ export class CinemasService {
 
   async findPicture(id: string) {
     try {
-      return (await this.cinemaRepository.findOneBy({ id })).picture;
+      const path = (await this.cinemaRepository.findOneBy({ id })).picture;
+      if (!path) {
+        throw new NotFoundException();
+      } else {
+        return path;
+      }
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

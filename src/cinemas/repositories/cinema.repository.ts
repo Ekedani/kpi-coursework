@@ -20,10 +20,11 @@ export class CinemaRepository extends Repository<Cinema> {
       take: take,
       skip: skip,
     });
-
+    const pages = Math.floor(total / take) + 1;
     return {
       data: result,
       total: total,
+      pages,
     };
   }
 }

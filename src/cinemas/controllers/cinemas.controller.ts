@@ -21,7 +21,6 @@ import { RoleGuard } from '../../users/guards/role.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiKeyGuard } from '../../users/guards/api-key.guard';
 import { FindCinemasDto } from '../dto/find-cinemas.dto';
-import { raw } from 'express';
 
 @Controller('cinemas')
 export class CinemasController {
