@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
 import { randomUUID } from 'crypto';
 import { FindUsersDto } from '../dto/find-users.dto';

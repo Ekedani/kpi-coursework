@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
 import { SignUpCredentialsDto } from '../dto/sign-up-credentials.dto';
 import { SignInCredentialsDto } from '../dto/sign-in-credentials.dto';
@@ -17,23 +17,31 @@ export class AuthService {
   async signUp(signUpCredentialsDto: SignUpCredentialsDto) {
     const { firstName, lastName, email, password } = signUpCredentialsDto;
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
-    const newUser = await this.userRepository.save({
-      firstName,
-      lastName,
-      email,
-      role: UserRole.User,
-      password: hashedPassword,
-    });
-    const payload: JwtPayload = {
-      id: newUser.id,
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
-      email: newUser.email,
-      role: newUser.role,
-    };
-    const accessToken = this.jwtService.sign(payload);
-    return { accessToken };
+    const hashedPassword = await bcrypt.hash(password, salt)
+    try {
+      const newUser = await this.userRepository.save({
+        firstName,
+        lastName,
+        email,
+        role: UserRole.User,
+        password: hashedPassword,
+      });
+      const payload: JwtPayload = {
+        id: newUser.id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        role: newUser.role,
+      };
+      const accessToken = this.jwtService.sign(payload);
+      return { accessToken };
+    } catch (e) {
+      // Duplicate email
+      if (e.code === '23505') {
+        throw new ConflictException();
+      }
+      throw e;
+    }
   }
 
   async signIn(signInCredentialsDto: SignInCredentialsDto) {
