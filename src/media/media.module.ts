@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { MediaController } from './controllers/media.controller';
 import { KinopoiskService } from './services/kinopoisk.service';
 import { TmdbService } from './services/tmdb.service';
@@ -9,7 +9,12 @@ import { ConfigModule } from '@nestjs/config';
 import MediaConfig from '../config/media.config';
 
 @Module({
-  imports: [HttpModule, UsersModule, ConfigModule.forFeature(MediaConfig)],
+  imports: [
+    CacheModule.register({ ttl: 60 * 5 }),
+    HttpModule,
+    UsersModule,
+    ConfigModule.forFeature(MediaConfig),
+  ],
   controllers: [MediaController],
   providers: [KinopoiskService, TmdbService, AggregationService],
 })

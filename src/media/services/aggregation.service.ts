@@ -12,6 +12,7 @@ export class AggregationService {
     private tmdbService: TmdbService,
   ) {}
   findMedia(findMediaDto: FindMediaDto) {
+    const cacheKey = JSON.stringify(findMediaDto);
     return this.kinopoiskService.findMedia(findMediaDto);
   }
 

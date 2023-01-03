@@ -5,6 +5,7 @@ export interface MediaInterface {
   rating: {
     [rating: string]: number;
   };
+  genres: Array<string>;
   ids: {
     [service: string]: string;
   };
