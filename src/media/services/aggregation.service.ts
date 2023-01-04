@@ -4,6 +4,7 @@ import { KinopoiskService } from './kinopoisk.service';
 import { TmdbService } from './tmdb.service';
 import { GetSingleMediaDto } from '../dto/get-single-media.dto';
 import { GetMediaRatingDto } from '../dto/get-media-rating.dto';
+import { MediaInterface } from '../common/media.interface';
 
 @Injectable()
 export class AggregationService {
@@ -11,16 +12,38 @@ export class AggregationService {
     private kinopoiskService: KinopoiskService,
     private tmdbService: TmdbService,
   ) {}
-  findMedia(findMediaDto: FindMediaDto) {
-    const cacheKey = JSON.stringify(findMediaDto);
+
+  private isSameMedia(...args): boolean {
+    try {
+      const imdbId = args[0]?.imdbId;
+      const sameImdbId = args.reduce((accumulator, currentValue) => {
+        return accumulator && currentValue?.imdbId === imdbId;
+      }, true);
+      if (sameImdbId) {
+        return true;
+      }
+      const name = args[0]?.nameOriginal;
+      const year = args[0]?.year;
+      return args.reduce((accumulator, currentValue) => {
+        const sameName = currentValue?.nameOriginal === name;
+        const sameYear = currentValue?.year === year;
+        return accumulator && sameName && sameYear;
+      }, true);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async findMedia(findMediaDto: FindMediaDto) {
+    const items: Array<MediaInterface> = [];
     return this.kinopoiskService.findMedia(findMediaDto);
   }
 
-  getSingleMedia(getSingleMediaDto: GetSingleMediaDto) {
+  async getSingleMedia(getSingleMediaDto: GetSingleMediaDto) {
     return getSingleMediaDto;
   }
 
-  getMediaRating(getMediaRatingDto: GetMediaRatingDto) {
-
+  async getMediaRating(getMediaRatingDto: GetMediaRatingDto) {
+    return getMediaRatingDto;
   }
 }
