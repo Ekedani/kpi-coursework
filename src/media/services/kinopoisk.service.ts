@@ -3,6 +3,8 @@ import { HttpService } from '@nestjs/axios';
 import { FindMediaDto } from '../dto/find-media.dto';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+import { MediaInterface } from '../common/media.interface';
+import { KinopoiskGenresDictionary } from '../common/dictionaries/kinopoisk-genres.dictionary';
 
 @Injectable()
 export class KinopoiskService {
@@ -15,6 +17,33 @@ export class KinopoiskService {
   ) {
     this.apiHost = configService.get('media.kinopoiskHost');
     this.apiKey = configService.get('media.kinopoiskKey');
+  }
+
+  private convertKinopoiskToMedia(item): MediaInterface {
+    const mediaItem: MediaInterface = {
+      sources: ['kinopoisk'],
+      nameOriginal: item.nameOriginal ?? item.nameRu,
+      year: item.year,
+      imdbId: item.imdbId,
+      rating: {
+        kinopoisk: item.ratingKinopoisk,
+      },
+      genres: [],
+      ids: {
+        kinopoisk: item.kinopoiskId,
+      },
+      images: [item.posterUrl, item.posterUrlPreview],
+      links: {
+        kinopoisk: `https://www.kinopoisk.ru/film/${item.kinopoiskId}/`,
+      },
+    };
+    item.genres.forEach((kinoposkGenre) => {
+      const genre = KinopoiskGenresDictionary.find((x) => {
+        return kinoposkGenre.genre === x.genreRu;
+      });
+      mediaItem.genres.push(genre.genreEn);
+    });
+    return mediaItem;
   }
 
   private findMediaRequest({
@@ -60,11 +89,6 @@ export class KinopoiskService {
         data.items.push(...response.data.items);
       });
     }
-    data.items.forEach((item) => {
-      if (!item.nameOriginal) {
-        item.nameOriginal = item.nameRu;
-      }
-    });
-    return data;
+    return data.items.map((item) => this.convertKinopoiskToMedia(item));
   }
 }

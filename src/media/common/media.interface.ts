@@ -1,9 +1,10 @@
 export interface MediaInterface {
   sources: Array<string>;
-  nameOriginal: string;
-  year: number;
+  nameOriginal: string | null;
+  year: number | null;
+  imdbId: string | null;
   rating: {
-    [rating: string]: number;
+    [service: string]: number;
   };
   genres: Array<string>;
   ids: {
