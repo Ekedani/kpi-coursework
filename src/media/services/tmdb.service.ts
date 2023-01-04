@@ -3,7 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { FindMediaDto } from '../dto/find-media.dto';
 import { firstValueFrom } from 'rxjs';
-import { MediaInterface } from '../common/media.interface';
+import { Media } from '../common/media';
 import { TmdbGenresDictionary } from '../common/dictionaries/tmdb-genres.dictionary';
 
 @Injectable()
@@ -26,17 +26,15 @@ export class TmdbService {
     };
     const { data } = await this.findMediaRequest({ searchParams, page: 1 });
     let { total_pages: totalPages } = data;
-    totalPages = totalPages <= 20 ? totalPages : 20;
     if (totalPages > 1) {
+      totalPages = totalPages <= 20 ? totalPages : 20;
       const requests = [];
       for (let page = 2; page <= totalPages; page++) {
         requests.push(this.findMediaRequest({ searchParams, page }));
       }
-      const responses = await Promise.allSettled(requests);
+      const responses = await Promise.all(requests);
       responses.forEach((response) => {
-        if (response.status === 'fulfilled') {
-          data.results.push(...response.value.data.results);
-        }
+        data.results.push(...response.data.results);
       });
     }
     const convertedData = data.results.map((item) =>
@@ -47,8 +45,8 @@ export class TmdbService {
     return filteredData;
   }
 
-  private convertItemToMedia(item): MediaInterface {
-    const mediaItem: MediaInterface = {
+  private convertItemToMedia(item): Media {
+    const mediaItem: Media = {
       sources: ['tmdb'],
       nameOriginal: item.original_title,
       alternativeNames: [],
@@ -115,7 +113,7 @@ export class TmdbService {
     );
   }
 
-  private filterMedia(data: Array<MediaInterface>, findMediaDto: FindMediaDto) {
+  private filterMedia(data: Array<Media>, findMediaDto: FindMediaDto) {
     if (findMediaDto.yearTo) {
       data = data.filter((item) => item.year <= findMediaDto.yearTo);
     }
@@ -128,7 +126,6 @@ export class TmdbService {
     if (findMediaDto.ratingFrom) {
       data = data.filter((item) => item.rating.tmdb >= findMediaDto.ratingFrom);
     }
-    console.log(data.length, ' filtered');
     return data;
   }
 

@@ -3,7 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { FindMediaDto } from '../dto/find-media.dto';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { MediaInterface } from '../common/media.interface';
+import { Media } from '../common/media';
 import { KinopoiskGenresDictionary } from '../common/dictionaries/kinopoisk-genres.dictionary';
 
 @Injectable()
@@ -19,8 +19,8 @@ export class KinopoiskService {
     this.apiKey = configService.get('media.kinopoiskKey');
   }
 
-  private convertItemToMedia(item): MediaInterface {
-    const mediaItem: MediaInterface = {
+  private convertItemToMedia(item): Media {
+    const mediaItem: Media = {
       sources: ['kinopoisk'],
       nameOriginal: item.nameOriginal ?? item.nameRu,
       alternativeNames: [],
@@ -42,9 +42,9 @@ export class KinopoiskService {
     if (item.ratingKinopoisk) {
       mediaItem.rating.kinopoisk = item.ratingKinopoisk;
     }
-    item.genres.forEach((kinoposkGenre) => {
+    item.genres.forEach((kinopoiskGenre) => {
       const genre = KinopoiskGenresDictionary.find((x) => {
-        return kinoposkGenre.genre === x.genreRu;
+        return kinopoiskGenre.genre === x.genreRu;
       });
       mediaItem.genres.push(genre.genreEn);
     });

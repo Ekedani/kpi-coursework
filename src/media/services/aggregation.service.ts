@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { FindMediaDto } from '../dto/find-media.dto';
 import { KinopoiskService } from './kinopoisk.service';
 import { TmdbService } from './tmdb.service';
 import { GetSingleMediaDto } from '../dto/get-single-media.dto';
 import { GetMediaRatingDto } from '../dto/get-media-rating.dto';
-import { MediaInterface } from '../common/media.interface';
+import { Media } from '../common/media';
 
 @Injectable()
 export class AggregationService {
@@ -14,21 +14,31 @@ export class AggregationService {
   ) {}
 
   async findMedia(findMediaDto: FindMediaDto) {
-    const sources: Array<string> = [];
-    const items: Array<MediaInterface> = [];
+    const kinopoiskPromise = this.kinopoiskService.findMedia(findMediaDto);
+    const tmdbPromise = this.tmdbService.findMedia(findMediaDto);
+    const dataSources: Array<string> = ['kinopoisk', 'tmdb'];
+    const responses = await Promise.allSettled([kinopoiskPromise, tmdbPromise]);
 
-    try {
-      const kinopoiskPromise = this.kinopoiskService.findMedia(findMediaDto);
-      const tmdbPromise = this.tmdbService.findMedia(findMediaDto);
-      const responses = await Promise.allSettled([
-        kinopoiskPromise,
-        tmdbPromise,
-      ]);
-      const items = this.aggregateMedia();
-      return responses;
-    } catch (e) {
-      throw e;
+    const warnings: Array<string> = [];
+    responses.forEach((res, index) => {
+      if (res.status === 'rejected') {
+        warnings.push(
+          `an error occurred while fetching data from ${dataSources[index]}`,
+        );
+        dataSources[index] = null;
+      }
+    });
+    if (!dataSources.some((source) => source)) {
+      throw new InternalServerErrorException(
+        'failed to fetch all data sources',
+      );
     }
+
+    const items = responses
+      .filter((res) => res.status === 'fulfilled')
+      .map((res: PromiseFulfilledResult<any>) => res.value);
+    const aggregatedItems = this.aggregateMedia(...items);
+    return { sources: dataSources, items: aggregatedItems, warnings };
   }
 
   async getSingleMedia(getSingleMediaDto: GetSingleMediaDto) {
@@ -39,11 +49,24 @@ export class AggregationService {
     return getMediaRatingDto;
   }
 
-  private aggregateMedia(): Array<MediaInterface> {
-    return [];
+  private aggregateMedia(...args): Array<Media> {
+    const items: Array<Media> = [];
+    if (args.length == 2) {
+      args[0].forEach((item, index) => {
+        const sameMedia = args[1].find((comparedItem) =>
+          this.isSameMedia(item, comparedItem),
+        );
+        if(sameMedia){
+
+        }
+      });
+    } else {
+      items.push(...args[0]);
+    }
+    return items;
   }
 
-  private isSameMedia(...args: Array<MediaInterface>): boolean {
+  private isSameMedia(...args: Array<Media>): boolean {
     try {
       const imdbId = args[0]?.imdbId;
       // TODO: Check Nulls
