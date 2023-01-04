@@ -13,9 +13,40 @@ export class AggregationService {
     private tmdbService: TmdbService,
   ) {}
 
-  private isSameMedia(...args): boolean {
+  async findMedia(findMediaDto: FindMediaDto) {
+    const sources: Array<string> = [];
+    const items: Array<MediaInterface> = [];
+
+    try {
+      const kinopoiskPromise = this.kinopoiskService.findMedia(findMediaDto);
+      const tmdbPromise = this.tmdbService.findMedia(findMediaDto);
+      const responses = await Promise.allSettled([
+        kinopoiskPromise,
+        tmdbPromise,
+      ]);
+      const items = this.aggregateMedia();
+      return responses;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getSingleMedia(getSingleMediaDto: GetSingleMediaDto) {
+    return getSingleMediaDto;
+  }
+
+  async getMediaRating(getMediaRatingDto: GetMediaRatingDto) {
+    return getMediaRatingDto;
+  }
+
+  private aggregateMedia(): Array<MediaInterface> {
+    return [];
+  }
+
+  private isSameMedia(...args: Array<MediaInterface>): boolean {
     try {
       const imdbId = args[0]?.imdbId;
+      // TODO: Check Nulls
       const sameImdbId = args.reduce((accumulator, currentValue) => {
         return accumulator && currentValue?.imdbId === imdbId;
       }, true);
@@ -32,18 +63,5 @@ export class AggregationService {
     } catch (e) {
       return false;
     }
-  }
-
-  async findMedia(findMediaDto: FindMediaDto) {
-    const items: Array<MediaInterface> = [];
-    return this.kinopoiskService.findMedia(findMediaDto);
-  }
-
-  async getSingleMedia(getSingleMediaDto: GetSingleMediaDto) {
-    return getSingleMediaDto;
-  }
-
-  async getMediaRating(getMediaRatingDto: GetMediaRatingDto) {
-    return getMediaRatingDto;
   }
 }

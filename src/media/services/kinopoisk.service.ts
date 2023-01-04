@@ -19,15 +19,14 @@ export class KinopoiskService {
     this.apiKey = configService.get('media.kinopoiskKey');
   }
 
-  private convertKinopoiskToMedia(item): MediaInterface {
+  private convertItemToMedia(item): MediaInterface {
     const mediaItem: MediaInterface = {
       sources: ['kinopoisk'],
       nameOriginal: item.nameOriginal ?? item.nameRu,
+      alternativeNames: [],
       year: item.year,
       imdbId: item.imdbId,
-      rating: {
-        kinopoisk: item.ratingKinopoisk,
-      },
+      rating: {},
       genres: [],
       ids: {
         kinopoisk: item.kinopoiskId,
@@ -37,6 +36,12 @@ export class KinopoiskService {
         kinopoisk: `https://www.kinopoisk.ru/film/${item.kinopoiskId}/`,
       },
     };
+    if (item.nameRu && mediaItem.nameOriginal !== item.nameRu) {
+      mediaItem.alternativeNames.push(item.nameRu);
+    }
+    if (item.ratingKinopoisk) {
+      mediaItem.rating.kinopoisk = item.ratingKinopoisk;
+    }
     item.genres.forEach((kinoposkGenre) => {
       const genre = KinopoiskGenresDictionary.find((x) => {
         return kinoposkGenre.genre === x.genreRu;
@@ -56,6 +61,7 @@ export class KinopoiskService {
     return firstValueFrom(
       this.httpService.get(`${this.apiHost}/api/v2.2/films`, {
         headers: {
+          'Accept-Encoding': 'gzip,deflate,compress',
           'x-api-key': this.apiKey,
         },
         params: {
@@ -89,6 +95,6 @@ export class KinopoiskService {
         data.items.push(...response.data.items);
       });
     }
-    return data.items.map((item) => this.convertKinopoiskToMedia(item));
+    return data.items.map((item) => this.convertItemToMedia(item));
   }
 }
