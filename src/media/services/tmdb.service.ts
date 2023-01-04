@@ -24,13 +24,13 @@ export class TmdbService {
       api_key: this.apiKey,
       query: findMediaDto.keyword,
     };
-    const { data } = await this.findMovieRequest({ searchParams, page: 1 });
+    const { data } = await this.findMediaRequest({ searchParams, page: 1 });
     let { total_pages: totalPages } = data;
     totalPages = totalPages <= 20 ? totalPages : 20;
     if (totalPages > 1) {
       const requests = [];
       for (let page = 2; page <= totalPages; page++) {
-        requests.push(this.findMovieRequest({ searchParams, page }));
+        requests.push(this.findMediaRequest({ searchParams, page }));
       }
       const responses = await Promise.allSettled(requests);
       responses.forEach((response) => {
@@ -42,7 +42,9 @@ export class TmdbService {
     const convertedData = data.results.map((item) =>
       this.convertItemToMedia(item),
     );
-    return this.filterMedia(convertedData, findMediaDto);
+    const filteredData = this.filterMedia(convertedData, findMediaDto);
+    await this.findImdbIds(filteredData);
+    return filteredData;
   }
 
   private convertItemToMedia(item): MediaInterface {
@@ -84,7 +86,7 @@ export class TmdbService {
     return mediaItem;
   }
 
-  private findMovieRequest({
+  private findMediaRequest({
     searchParams,
     page,
   }: {
@@ -97,6 +99,17 @@ export class TmdbService {
         params: {
           page,
           ...searchParams,
+        },
+      }),
+    );
+  }
+
+  private getSingleMediaRequest(id: string) {
+    return firstValueFrom(
+      this.httpService.get(`${this.apiHost}/movie/${id}`, {
+        headers: { 'Accept-Encoding': 'gzip,deflate,compress' },
+        params: {
+          api_key: this.apiKey,
         },
       }),
     );
@@ -117,5 +130,21 @@ export class TmdbService {
     }
     console.log(data.length, ' filtered');
     return data;
+  }
+
+  private async findImdbIds(data) {
+    const detailedInfo = await Promise.allSettled(
+      data.map((item) => {
+        return this.getSingleMediaRequest(item.ids.tmdb);
+      }),
+    );
+    detailedInfo.forEach((item, index) => {
+      if (item.status === 'fulfilled') {
+        item.value.data.imdb_id = item.value.data.imdb_id
+          ? item.value.data.imdb_id
+          : null;
+        data[index].imdbId = item.value.data.imdb_id;
+      }
+    });
   }
 }
