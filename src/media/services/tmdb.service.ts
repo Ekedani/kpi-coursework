@@ -46,7 +46,7 @@ export class TmdbService {
   }
 
   private convertItemToMedia(item): Media {
-    const mediaItem: Media = {
+    const mediaItem = new Media({
       sources: ['tmdb'],
       nameOriginal: item.original_title,
       alternativeNames: [],
@@ -63,7 +63,7 @@ export class TmdbService {
       links: {
         tmdb: `https://www.themoviedb.org/movie/${item.id}/`,
       },
-    };
+    });
     if (item.release_date) {
       mediaItem.year = new Date(item.release_date).getFullYear();
     }

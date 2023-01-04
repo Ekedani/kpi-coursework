@@ -20,7 +20,7 @@ export class KinopoiskService {
   }
 
   private convertItemToMedia(item): Media {
-    const mediaItem: Media = {
+    const mediaItem = new Media({
       sources: ['kinopoisk'],
       nameOriginal: item.nameOriginal ?? item.nameRu,
       alternativeNames: [],
@@ -35,7 +35,7 @@ export class KinopoiskService {
       links: {
         kinopoisk: `https://www.kinopoisk.ru/film/${item.kinopoiskId}/`,
       },
-    };
+    });
     if (item.nameRu && mediaItem.nameOriginal !== item.nameRu) {
       mediaItem.alternativeNames.push(item.nameRu);
     }

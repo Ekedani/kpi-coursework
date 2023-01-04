@@ -1,7 +1,30 @@
 import { union, merge } from 'lodash';
-import { createJestPreset } from 'ts-jest';
 
 export class Media {
+  constructor(param: {
+    alternativeNames: any;
+    nameOriginal: string;
+    images: any;
+    sources: any;
+    year: number;
+    imdbId: string;
+    genres: any;
+    rating: any;
+    ids: any;
+    links: any;
+  }) {
+    this.sources = param.sources;
+    this.nameOriginal = param.nameOriginal;
+    this.alternativeNames = param.alternativeNames;
+    this.year = param.year;
+    this.imdbId = param.imdbId;
+    this.rating = param.rating;
+    this.genres = param.genres;
+    this.ids = param.ids;
+    this.images = param.images;
+    this.links = param.links;
+  }
+
   sources: Array<string>;
   nameOriginal: string | null;
   alternativeNames: Array<string>;
@@ -20,7 +43,7 @@ export class Media {
   };
 
   public join(media: Media) {
-    const joined Media = {
+    const joined = new Media({
       sources: union(this.sources, media.sources),
       nameOriginal: this.nameOriginal ?? media.nameOriginal,
       alternativeNames: union(this.alternativeNames, media.alternativeNames),
@@ -31,7 +54,7 @@ export class Media {
       ids: merge(this.ids, media.ids),
       images: union(this.images, media.images),
       links: merge(this.links, media.links),
-    };
+    });
     delete joined.rating.average;
     const ratings = Object.entries(joined.rating).map((x) => x[1]);
     if (ratings.length !== 0) {
