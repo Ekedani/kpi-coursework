@@ -44,6 +44,14 @@ export class FindMediaDto {
 
   @IsOptional()
   @IsInt()
+  @Min(1)
   @Transform(({ value }) => Number.parseInt(value))
   readonly page: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(10)
+  @Max(200)
+  @Transform(({ value }) => Number.parseInt(value))
+  readonly itemsPerPage: number;
 }

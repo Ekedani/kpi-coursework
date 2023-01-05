@@ -40,22 +40,19 @@ export class AggregationService {
       dataSources,
       requests,
     );
-    const items = fulfilledResponses.map((res) => res.value);
-    const aggregatedItems = this.aggregateMedia(...items);
-    const filteredItems = this.filterAggregated(aggregatedItems, findMediaDto);
+    const nonaggregatedItems = fulfilledResponses.map((res) => res.value);
+    const aggregatedItems = this.aggregateMedia(...nonaggregatedItems);
+
+    const items = this.filterAggregated(aggregatedItems, findMediaDto);
+    const total = items.length;
+    const result = { dataSources, total, items, warnings: undefined };
+
     if (warnings.length === 0) {
-      await this.setMediaCache(cacheKey, {
-        dataSources,
-        total: filteredItems.length,
-        items: filteredItems,
-      });
+      await this.setMediaCache(cacheKey, result);
+    } else {
+      result.warnings = warnings;
     }
-    return {
-      dataSources,
-      total: filteredItems.length,
-      items: filteredItems,
-      warnings,
-    };
+    return result;
   }
 
   async getSingleMedia(getSingleMediaDto: GetSingleMediaDto) {
@@ -134,10 +131,22 @@ export class AggregationService {
     return items;
   }
 
+  private paginateMedia(items: Array<MediaItem>, findMediaDto: FindMediaDto) {
+    const page = findMediaDto.page ?? 1;
+    const take = findMediaDto.itemsPerPage ?? 20;
+    const paginated = items.slice((page - 1) * take, page * take);
+    return {
+      items: paginated,
+      pages: Math.floor(items.length / take) + 1,
+    };
+  }
+
   /**
    * Summary. Finds the cache by the search query key
    */
-  async getMediaCache(cacheKey): Promise<object | undefined> {
+  async getMediaCache(
+    cacheKey,
+  ): Promise<{ dataSources; total; items } | undefined> {
     const cache: string | undefined = await this.cacheManager.get(cacheKey);
     if (cache === undefined) {
       return undefined;
