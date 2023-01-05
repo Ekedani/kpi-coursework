@@ -9,7 +9,9 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
-  Res, Query,
+  Res,
+  Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { CinemasService } from '../services/cinemas.service';
 import { CreateCinemaDto } from '../dto/create-cinema.dto';
@@ -42,13 +44,13 @@ export class CinemasController {
 
   @Get(':id')
   @UseGuards(ApiKeyGuard)
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.cinemasService.findOne(id);
   }
 
   @Get(':id/picture')
   @UseGuards(ApiKeyGuard)
-  async findPicture(@Param('id') id: string, @Res() res) {
+  async findPicture(@Param('id', ParseUUIDPipe) id: string, @Res() res) {
     const path = await this.cinemasService.findPicture(id);
     res.setHeader('content-type', 'image/jpeg');
     res.sendFile(path, { root: 'uploads' });
@@ -59,7 +61,7 @@ export class CinemasController {
   @UseGuards(AuthGuard(), RoleGuard)
   @UseInterceptors(FileInterceptor('picture'))
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @UploadedFile() picture,
     @Body() updateCinemaDto: UpdateCinemaDto,
   ) {
@@ -69,7 +71,7 @@ export class CinemasController {
   @Delete(':id')
   @Roles(UserRole.Admin)
   @UseGuards(AuthGuard(), RoleGuard)
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.cinemasService.remove(id);
   }
 }

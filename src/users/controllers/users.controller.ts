@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Get,
   Param,
+  ParseUUIDPipe,
   Post,
   Query,
   UseGuards,
@@ -30,7 +31,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @GetUser() user: User) {
+  findOne(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
     if (user.id !== id && user.role !== UserRole.Admin) {
       throw new ForbiddenException();
     } else {
@@ -39,7 +40,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @GetUser() user: User) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
     if (user.id !== id && user.role !== UserRole.Admin) {
       throw new ForbiddenException();
     } else {
@@ -48,7 +49,10 @@ export class UsersController {
   }
 
   @Post(':id/api-key')
-  generateApiKey(@Param('id') id: string, @GetUser() user: User) {
+  generateApiKey(
+    @Param('id', ParseUUIDPipe) id: string,
+    @GetUser() user: User,
+  ) {
     if (user.id !== id && user.role !== UserRole.Admin) {
       throw new ForbiddenException();
     } else {
