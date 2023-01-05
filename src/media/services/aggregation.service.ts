@@ -22,19 +22,15 @@ export class AggregationService {
       this.kinopoiskService.serviceName,
       this.tmdbService.serviceName,
     ];
-    const responses = await Promise.allSettled([
+    const requests = [
       this.kinopoiskService.findMedia(findMediaDto),
       this.tmdbService.findMedia(findMediaDto),
-    ]);
-    const warnings: Array<string> = [];
-    responses.forEach((res, index) => {
-      if (res.status === 'rejected') {
-        warnings.push(`can't fetch data from ${dataSources[index]}`);
-      }
-    });
-    const items = responses
-      .filter((res) => res.status === 'fulfilled')
-      .map((res: PromiseFulfilledResult<any>) => res.value);
+    ];
+    const { fulfilledResponses, warnings } = await this.handleRequests(
+      dataSources,
+      requests,
+    );
+    const items = fulfilledResponses.map((res) => res.value);
     const aggregatedItems = this.aggregateMedia(...items);
     const filteredItems = this.filterAggregated(aggregatedItems, findMediaDto);
     return {
@@ -64,10 +60,10 @@ export class AggregationService {
     );
     const items = fulfilledResponses.map((res) => res.value);
     const aggregatedItem = items.reduce((prev, cur) => {
-      if (prev.isSame(cur)) {
+      if (prev.isSameMedia(cur)) {
         return prev.join(cur);
       } else {
-        throw new BadRequestException();
+        throw new BadRequestException('media in the query is not the same');
       }
     });
     return { aggregatedItem, warnings };
@@ -93,8 +89,9 @@ export class AggregationService {
   ) {
     const responses = await Promise.allSettled(requests);
     const warnings: Array<string> = [];
+    console.log(responses);
     const fulfilledResponses = responses.filter((res, index) => {
-      if (res.status === 'fulfilled') {
+      if (res.status !== 'fulfilled') {
         warnings.push(`can't fetch data from ${dataSources[index]}`);
       }
       return res.status === 'fulfilled';

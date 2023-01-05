@@ -11,6 +11,7 @@ import { Transform } from 'class-transformer';
 export class FindMediaDto {
   @IsString()
   @IsNotEmpty()
+  @Transform(({ value }) => value.toLowerCase())
   readonly keyword: string;
 
   @IsOptional()

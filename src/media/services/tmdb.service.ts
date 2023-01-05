@@ -48,7 +48,7 @@ export class TmdbService {
 
   async getSingleMedia(id: string) {
     const response = await this.getSingleMediaRequest(id);
-    return this.convertItemToMedia(response.data);
+    return this.convertSingleItemToMedia(response.data);
   }
 
   private convertItemToMedia(item): MediaItem {
@@ -77,6 +77,42 @@ export class TmdbService {
       const genre = TmdbGenresDictionary.find((x) => x.id == genreId);
       return genre.genreEn;
     });
+    if (item.poster_path) {
+      mediaItem.images.push(
+        `https://image.tmdb.org/t/p/original${item.poster_path}`,
+      );
+    }
+    if (item.backdrop_path) {
+      mediaItem.images.push(
+        `https://image.tmdb.org/t/p/original${item.backdrop_path}`,
+      );
+    }
+    return mediaItem;
+  }
+
+  private convertSingleItemToMedia(item): MediaItem {
+    const mediaItem = new MediaItem({
+      sources: ['tmdb'],
+      nameOriginal: item.original_title,
+      alternativeNames: [],
+      year: null,
+      imdbId: item.imdb_id,
+      rating: {
+        tmdb: item.vote_average,
+      },
+      genres: [],
+      ids: {
+        tmdb: item.id,
+      },
+      images: [],
+      links: {
+        tmdb: `https://www.themoviedb.org/movie/${item.id}/`,
+      },
+    });
+    if (item.release_date) {
+      mediaItem.year = new Date(item.release_date).getFullYear();
+    }
+    item.genres.forEach((genre) => mediaItem.genres.push(genre.name));
     if (item.poster_path) {
       mediaItem.images.push(
         `https://image.tmdb.org/t/p/original${item.poster_path}`,

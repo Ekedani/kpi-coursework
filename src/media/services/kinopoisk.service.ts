@@ -47,11 +47,17 @@ export class KinopoiskService {
   }
 
   async getSingleMedia(id: string) {
-    const response = await this.getSingleMediaRequest(id);
-    return this.convertItemToMedia(response);
+    try {
+      const response = await this.getSingleMediaRequest(id);
+      return this.convertItemToMedia(response.data);
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
   }
 
   private convertItemToMedia(item): MediaItem {
+    console.log(item);
     const mediaItem = new MediaItem({
       sources: ['kinopoisk'],
       nameOriginal: item.nameOriginal ?? item.nameRu,
@@ -105,11 +111,13 @@ export class KinopoiskService {
   }
 
   private getSingleMediaRequest(id: string) {
-    return this.httpService.get(`${this.apiHost}/api/v2.2/films/${id}`, {
-      headers: {
-        'Accept-Encoding': 'gzip,deflate,compress',
-        'x-api-key': this.apiKey,
-      },
-    });
+    return firstValueFrom(
+      this.httpService.get(`${this.apiHost}/api/v2.2/films/${id}`, {
+        headers: {
+          'Accept-Encoding': 'gzip,deflate,compress',
+          'x-api-key': this.apiKey,
+        },
+      }),
+    );
   }
 }

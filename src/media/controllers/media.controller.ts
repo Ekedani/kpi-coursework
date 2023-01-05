@@ -30,9 +30,9 @@ export class MediaController {
   }
 
   @Get('single/rating')
-  getRating(@Query() getMediaRatingDto: GetSingleMediaDto) {
-    if (getMediaRatingDto.kinopoiskId || getMediaRatingDto.tmdbId) {
-      return this.aggregationService.getMediaRating(getMediaRatingDto);
+  getRating(@Query() getSingleMediaDto: GetSingleMediaDto) {
+    if (getSingleMediaDto.kinopoiskId || getSingleMediaDto.tmdbId) {
+      return this.aggregationService.getMediaRating(getSingleMediaDto);
     } else {
       throw new BadRequestException();
     }
