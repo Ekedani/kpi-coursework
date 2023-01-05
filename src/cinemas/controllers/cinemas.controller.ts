@@ -12,6 +12,9 @@ import {
   Res,
   Query,
   ParseUUIDPipe,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { CinemasService } from '../services/cinemas.service';
 import { CreateCinemaDto } from '../dto/create-cinema.dto';
@@ -62,7 +65,15 @@ export class CinemasController {
   @UseInterceptors(FileInterceptor('picture'))
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @UploadedFile() picture,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 2000 }),
+          new FileTypeValidator({ fileType: 'image/jpeg' }),
+        ],
+      }),
+    )
+    picture,
     @Body() updateCinemaDto: UpdateCinemaDto,
   ) {
     return this.cinemasService.update(id, picture, updateCinemaDto);
