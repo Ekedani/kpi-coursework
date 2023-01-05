@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  CACHE_MANAGER,
+  Inject,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -9,15 +11,23 @@ import { TmdbService } from './tmdb.service';
 import { GetSingleMediaDto } from '../dto/get-single-media.dto';
 import { MediaItem } from '../common/mediaItem';
 import { isEmpty } from 'lodash';
+import searchQueryToKey from '../common/searchQueryToKey';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class AggregationService {
   constructor(
     private kinopoiskService: KinopoiskService,
     private tmdbService: TmdbService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async findMedia(findMediaDto: FindMediaDto) {
+    const cacheKey = searchQueryToKey(findMediaDto);
+    const cache = await this.getMediaCache(cacheKey);
+    if (cache) {
+      return cache;
+    }
     const dataSources: Array<string> = [
       this.kinopoiskService.serviceName,
       this.tmdbService.serviceName,
@@ -33,6 +43,13 @@ export class AggregationService {
     const items = fulfilledResponses.map((res) => res.value);
     const aggregatedItems = this.aggregateMedia(...items);
     const filteredItems = this.filterAggregated(aggregatedItems, findMediaDto);
+    if (warnings.length === 0) {
+      await this.setMediaCache(cacheKey, {
+        dataSources,
+        total: filteredItems.length,
+        items: filteredItems,
+      });
+    }
     return {
       dataSources,
       total: filteredItems.length,
@@ -89,7 +106,6 @@ export class AggregationService {
   ) {
     const responses = await Promise.allSettled(requests);
     const warnings: Array<string> = [];
-    console.log(responses);
     const fulfilledResponses = responses.filter((res, index) => {
       if (res.status !== 'fulfilled') {
         warnings.push(`can't fetch data from ${dataSources[index]}`);
@@ -116,6 +132,29 @@ export class AggregationService {
       items = items.filter((item) => !isEmpty(item.rating));
     }
     return items;
+  }
+
+  /**
+   * Summary. Finds the cache by the search query key
+   */
+  async getMediaCache(cacheKey): Promise<object | undefined> {
+    const cache: string | undefined = await this.cacheManager.get(cacheKey);
+    if (cache === undefined) {
+      return undefined;
+    } else {
+      return JSON.parse(cache);
+    }
+  }
+
+  /**
+   * Summary. Caches response data for quick access
+   */
+  async setMediaCache(cacheKey, { dataSources, total, items }): Promise<void> {
+    await this.cacheManager.set(
+      cacheKey,
+      JSON.stringify({ dataSources, total, items }),
+      60 * 60 * 5,
+    );
   }
 
   /**

@@ -47,17 +47,11 @@ export class KinopoiskService {
   }
 
   async getSingleMedia(id: string) {
-    try {
-      const response = await this.getSingleMediaRequest(id);
-      return this.convertItemToMedia(response.data);
-    } catch (e) {
-      console.log(e);
-      throw e;
-    }
+    const response = await this.getSingleMediaRequest(id);
+    return this.convertItemToMedia(response.data);
   }
 
   private convertItemToMedia(item): MediaItem {
-    console.log(item);
     const mediaItem = new MediaItem({
       sources: ['kinopoisk'],
       nameOriginal: item.nameOriginal ?? item.nameRu,
