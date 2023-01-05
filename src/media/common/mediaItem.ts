@@ -1,6 +1,6 @@
 import { union, merge } from 'lodash';
 
-export class Media {
+export class MediaItem {
   constructor(param: {
     alternativeNames: any;
     nameOriginal: string;
@@ -42,8 +42,8 @@ export class Media {
     [service: string]: string;
   };
 
-  public join(media: Media): Media {
-    const joined = new Media({
+  public join(media: MediaItem): MediaItem {
+    const joined = new MediaItem({
       sources: union(this.sources, media.sources),
       nameOriginal: this.nameOriginal ?? media.nameOriginal,
       alternativeNames: union(this.alternativeNames, media.alternativeNames),
@@ -64,7 +64,7 @@ export class Media {
     return joined;
   }
 
-  public isSameMedia(media: Media): boolean {
+  public isSameMedia(media: MediaItem): boolean {
     const sameImdbId = this.imdbId === media.imdbId;
     if (sameImdbId && this.imdbId) {
       return true;

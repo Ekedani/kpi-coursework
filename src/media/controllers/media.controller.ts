@@ -9,7 +9,6 @@ import { ApiKeyGuard } from '../../users/guards/api-key.guard';
 import { AggregationService } from '../services/aggregation.service';
 import { FindMediaDto } from '../dto/find-media.dto';
 import { GetSingleMediaDto } from '../dto/get-single-media.dto';
-import { GetMediaRatingDto } from '../dto/get-media-rating.dto';
 
 @Controller('media')
 @UseGuards(ApiKeyGuard)
@@ -31,7 +30,7 @@ export class MediaController {
   }
 
   @Get('single/rating')
-  getRating(@Query() getMediaRatingDto: GetMediaRatingDto) {
+  getRating(@Query() getMediaRatingDto: GetSingleMediaDto) {
     if (getMediaRatingDto.kinopoiskId || getMediaRatingDto.tmdbId) {
       return this.aggregationService.getMediaRating(getMediaRatingDto);
     } else {

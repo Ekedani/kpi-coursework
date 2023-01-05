@@ -3,11 +3,12 @@ import { HttpService } from '@nestjs/axios';
 import { FindMediaDto } from '../dto/find-media.dto';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { Media } from '../common/media';
+import { MediaItem } from '../common/mediaItem';
 import { KinopoiskGenresDictionary } from '../common/dictionaries/kinopoisk-genres.dictionary';
 
 @Injectable()
 export class KinopoiskService {
+  public readonly serviceName: string = 'kinopoisk';
   private readonly apiHost: string;
   private readonly apiKey: string;
 
@@ -19,8 +20,39 @@ export class KinopoiskService {
     this.apiKey = configService.get('media.kinopoiskKey');
   }
 
-  private convertItemToMedia(item): Media {
-    const mediaItem = new Media({
+  async findMedia(findMediaDto: FindMediaDto) {
+    const searchParams = {
+      keyword: findMediaDto.keyword,
+      yearFrom: findMediaDto.yearFrom,
+      yearTo: findMediaDto.yearTo,
+      ratingFrom: findMediaDto.ratingFrom,
+      ratingTo: findMediaDto.ratingTo,
+    };
+    const { data } = await this.findMediaRequest({
+      searchParams,
+      page: 1,
+    });
+    const { totalPages } = data;
+    if (totalPages > 1) {
+      const requests = [];
+      for (let page = 2; page <= totalPages; page++) {
+        requests.push(this.findMediaRequest({ searchParams, page }));
+      }
+      const responses = await Promise.all(requests);
+      responses.forEach((response) => {
+        data.items.push(...response.data.items);
+      });
+    }
+    return data.items.map((item) => this.convertItemToMedia(item));
+  }
+
+  async getSingleMedia(id: string) {
+    const response = await this.getSingleMediaRequest(id);
+    return this.convertItemToMedia(response);
+  }
+
+  private convertItemToMedia(item): MediaItem {
+    const mediaItem = new MediaItem({
       sources: ['kinopoisk'],
       nameOriginal: item.nameOriginal ?? item.nameRu,
       alternativeNames: [],
@@ -72,29 +104,12 @@ export class KinopoiskService {
     );
   }
 
-  async findMedia(findMediaDto: FindMediaDto) {
-    const searchParams = {
-      keyword: findMediaDto.keyword,
-      yearFrom: findMediaDto.yearFrom,
-      yearTo: findMediaDto.yearTo,
-      ratingFrom: findMediaDto.ratingFrom,
-      ratingTo: findMediaDto.ratingTo,
-    };
-    const { data } = await this.findMediaRequest({
-      searchParams,
-      page: 1,
+  private getSingleMediaRequest(id: string) {
+    return this.httpService.get(`${this.apiHost}/api/v2.2/films/${id}`, {
+      headers: {
+        'Accept-Encoding': 'gzip,deflate,compress',
+        'x-api-key': this.apiKey,
+      },
     });
-    const { totalPages } = data;
-    if (totalPages > 1) {
-      const requests = [];
-      for (let page = 2; page <= totalPages; page++) {
-        requests.push(this.findMediaRequest({ searchParams, page }));
-      }
-      const responses = await Promise.all(requests);
-      responses.forEach((response) => {
-        data.items.push(...response.data.items);
-      });
-    }
-    return data.items.map((item) => this.convertItemToMedia(item));
   }
 }

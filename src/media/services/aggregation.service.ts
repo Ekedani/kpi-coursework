@@ -1,10 +1,13 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { FindMediaDto } from '../dto/find-media.dto';
 import { KinopoiskService } from './kinopoisk.service';
 import { TmdbService } from './tmdb.service';
 import { GetSingleMediaDto } from '../dto/get-single-media.dto';
-import { GetMediaRatingDto } from '../dto/get-media-rating.dto';
-import { Media } from '../common/media';
+import { MediaItem } from '../common/mediaItem';
 import { isEmpty } from 'lodash';
 
 @Injectable()
@@ -15,31 +18,27 @@ export class AggregationService {
   ) {}
 
   async findMedia(findMediaDto: FindMediaDto) {
-    const kinopoiskPromise = this.kinopoiskService.findMedia(findMediaDto);
-    const tmdbPromise = this.tmdbService.findMedia(findMediaDto);
-    const dataSources: Array<string> = ['kinopoisk', 'tmdb'];
-    const responses = await Promise.allSettled([kinopoiskPromise, tmdbPromise]);
+    const dataSources: Array<string> = [
+      this.kinopoiskService.serviceName,
+      this.tmdbService.serviceName,
+    ];
+    const responses = await Promise.allSettled([
+      this.kinopoiskService.findMedia(findMediaDto),
+      this.tmdbService.findMedia(findMediaDto),
+    ]);
     const warnings: Array<string> = [];
     responses.forEach((res, index) => {
       if (res.status === 'rejected') {
-        warnings.push(
-          `an error occurred while fetching data from ${dataSources[index]}`,
-        );
-        dataSources[index] = null;
+        warnings.push(`can't fetch data from ${dataSources[index]}`);
       }
     });
-    if (!dataSources.some((source) => source)) {
-      throw new InternalServerErrorException(
-        'failed to fetch all data sources',
-      );
-    }
     const items = responses
       .filter((res) => res.status === 'fulfilled')
       .map((res: PromiseFulfilledResult<any>) => res.value);
     const aggregatedItems = this.aggregateMedia(...items);
     const filteredItems = this.filterAggregated(aggregatedItems, findMediaDto);
     return {
-      sources: dataSources,
+      dataSources,
       total: filteredItems.length,
       items: filteredItems,
       warnings,
@@ -47,17 +46,72 @@ export class AggregationService {
   }
 
   async getSingleMedia(getSingleMediaDto: GetSingleMediaDto) {
-    return getSingleMediaDto;
+    const requests: Array<Promise<any>> = [];
+    const dataSources: Array<string> = [];
+    if (getSingleMediaDto.kinopoiskId) {
+      requests.push(
+        this.kinopoiskService.getSingleMedia(getSingleMediaDto.kinopoiskId),
+      );
+      dataSources.push(this.kinopoiskService.serviceName);
+    }
+    if (getSingleMediaDto.tmdbId) {
+      requests.push(this.tmdbService.getSingleMedia(getSingleMediaDto.tmdbId));
+      dataSources.push(this.tmdbService.serviceName);
+    }
+    const { fulfilledResponses, warnings } = await this.handleRequests(
+      dataSources,
+      requests,
+    );
+    const items = fulfilledResponses.map((res) => res.value);
+    const aggregatedItem = items.reduce((prev, cur) => {
+      if (prev.isSame(cur)) {
+        return prev.join(cur);
+      } else {
+        throw new BadRequestException();
+      }
+    });
+    return { aggregatedItem, warnings };
   }
 
-  async getMediaRating(getMediaRatingDto: GetMediaRatingDto) {
-    return getMediaRatingDto;
+  async getMediaRating(getSingleMediaDto: GetSingleMediaDto) {
+    const { aggregatedItem, warnings } = await this.getSingleMedia(
+      getSingleMediaDto,
+    );
+    return {
+      sources: aggregatedItem.source,
+      rating: aggregatedItem.rating,
+      warnings,
+    };
   }
 
+  /**
+   * Summary. Queries data from data sources and returns successful responses and warnings
+   */
+  private async handleRequests(
+    dataSources: Array<string>,
+    requests: Array<Promise<any>>,
+  ) {
+    const responses = await Promise.allSettled(requests);
+    const warnings: Array<string> = [];
+    const fulfilledResponses = responses.filter((res, index) => {
+      if (res.status === 'fulfilled') {
+        warnings.push(`can't fetch data from ${dataSources[index]}`);
+      }
+      return res.status === 'fulfilled';
+    }) as PromiseFulfilledResult<any>[];
+    if (fulfilledResponses.length === 0) {
+      throw new InternalServerErrorException("can't fetch datasources");
+    }
+    return { fulfilledResponses, warnings };
+  }
+
+  /**
+   * Summary. Filters data that does not match the search criteria after aggregation
+   */
   private filterAggregated(
-    items: Array<Media>,
+    items: Array<MediaItem>,
     findMediaDto: FindMediaDto,
-  ): Array<Media> {
+  ): Array<MediaItem> {
     if (findMediaDto.yearFrom || findMediaDto.yearTo) {
       items = items.filter((item) => item.year !== null);
     }
@@ -67,8 +121,11 @@ export class AggregationService {
     return items;
   }
 
-  private aggregateMedia(...args): Array<Media> {
-    let items: Array<Media> = [];
+  /**
+   * Summary. Calls the aggregation algorithms depending on the number of data sources
+   */
+  private aggregateMedia(...args): Array<MediaItem> {
+    let items: Array<MediaItem> = [];
     switch (args.length) {
       case 1: {
         items = args[0];
@@ -82,9 +139,12 @@ export class AggregationService {
     return items;
   }
 
-  private squareAggregation(a: Array<Media>, b: Array<Media>): Array<Media> {
-    const aggregatedItems: Array<Media> = [];
-    a.forEach((item: Media, index) => {
+  private squareAggregation(
+    a: Array<MediaItem>,
+    b: Array<MediaItem>,
+  ): Array<MediaItem> {
+    const aggregatedItems: Array<MediaItem> = [];
+    a.forEach((item: MediaItem, index) => {
       const sameMediaIndex = b.findIndex((comparedItem) =>
         item.isSameMedia(comparedItem),
       );

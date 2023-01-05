@@ -3,11 +3,12 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { FindMediaDto } from '../dto/find-media.dto';
 import { firstValueFrom } from 'rxjs';
-import { Media } from '../common/media';
+import { MediaItem } from '../common/mediaItem';
 import { TmdbGenresDictionary } from '../common/dictionaries/tmdb-genres.dictionary';
 
 @Injectable()
 export class TmdbService {
+  public readonly serviceName: string = 'tmdb';
   private readonly apiHost: string;
   private readonly apiKey: string;
 
@@ -45,8 +46,13 @@ export class TmdbService {
     return filteredData;
   }
 
-  private convertItemToMedia(item): Media {
-    const mediaItem = new Media({
+  async getSingleMedia(id: string) {
+    const response = await this.getSingleMediaRequest(id);
+    return this.convertItemToMedia(response.data);
+  }
+
+  private convertItemToMedia(item): MediaItem {
+    const mediaItem = new MediaItem({
       sources: ['tmdb'],
       nameOriginal: item.original_title,
       alternativeNames: [],
@@ -113,7 +119,7 @@ export class TmdbService {
     );
   }
 
-  private filterMedia(data: Array<Media>, findMediaDto: FindMediaDto) {
+  private filterMedia(data: Array<MediaItem>, findMediaDto: FindMediaDto) {
     if (findMediaDto.yearTo) {
       data = data.filter((item) => item.year <= findMediaDto.yearTo);
     }
