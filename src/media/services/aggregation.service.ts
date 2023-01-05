@@ -26,7 +26,9 @@ export class AggregationService {
     const cacheKey = searchQueryToKey(findMediaDto);
     const cache = await this.getMediaCache(cacheKey);
     if (cache) {
-      return cache;
+      const { items, pages } = this.paginateMedia(cache.items, findMediaDto);
+      cache.items = items;
+      return { ...cache, pages };
     }
     const dataSources: Array<string> = [
       this.kinopoiskService.serviceName,
@@ -46,13 +48,14 @@ export class AggregationService {
     const items = this.filterAggregated(aggregatedItems, findMediaDto);
     const total = items.length;
     const result = { dataSources, total, items, warnings: undefined };
-
     if (warnings.length === 0) {
       await this.setMediaCache(cacheKey, result);
     } else {
       result.warnings = warnings;
     }
-    return result;
+    const { items: paginated, pages } = this.paginateMedia(items, findMediaDto);
+    result.items = paginated;
+    return { ...result, pages };
   }
 
   async getSingleMedia(getSingleMediaDto: GetSingleMediaDto) {
