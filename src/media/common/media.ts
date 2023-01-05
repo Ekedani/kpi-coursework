@@ -42,7 +42,7 @@ export class Media {
     [service: string]: string;
   };
 
-  public join(media: Media) {
+  public join(media: Media): Media {
     const joined = new Media({
       sources: union(this.sources, media.sources),
       nameOriginal: this.nameOriginal ?? media.nameOriginal,
@@ -62,5 +62,15 @@ export class Media {
         ratings.reduce((x, a) => x + a, 0) / ratings.length;
     }
     return joined;
+  }
+
+  public isSameMedia(media: Media): boolean {
+    const sameImdbId = this.imdbId === media.imdbId;
+    if (sameImdbId && this.imdbId) {
+      return true;
+    }
+    const sameName = this.nameOriginal === media.nameOriginal;
+    const sameYear = this.year === media.year;
+    return sameName && sameYear && this.year !== null;
   }
 }
