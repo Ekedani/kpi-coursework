@@ -50,6 +50,7 @@ export class AuthService {
     if (user && (await bcrypt.compare(password, user.password))) {
       const payload: JwtPayload = {
         id: user.id,
+        apiKey: user.apiKey,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
