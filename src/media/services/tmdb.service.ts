@@ -75,7 +75,7 @@ export class TmdbService {
     }
     item.genre_ids.forEach((genreId) => {
       const genre = TmdbGenresDictionary.find((x) => x.id == genreId);
-      return genre.genreEn;
+      mediaItem.genres.push(genre.genreEn);
     });
     if (item.poster_path) {
       mediaItem.images.push(

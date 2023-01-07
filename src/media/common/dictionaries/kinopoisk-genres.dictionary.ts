@@ -92,7 +92,7 @@ export const KinopoiskGenresDictionary = [
   {
     id: 19,
     genreRu: 'семейный',
-    genreEn: 'family',
+    genreEn: 'Family',
   },
   {
     id: 20,
