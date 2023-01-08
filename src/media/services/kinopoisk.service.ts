@@ -73,6 +73,7 @@ export class KinopoiskService {
     }
     if (item.ratingKinopoisk) {
       mediaItem.rating.kinopoisk = item.ratingKinopoisk;
+      mediaItem.rating.average = item.ratingKinopoisk;
     }
     item.genres.forEach((kinopoiskGenre) => {
       const genre = KinopoiskGenresDictionary.find((x) => {

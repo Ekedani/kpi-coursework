@@ -60,6 +60,7 @@ export class TmdbService {
       imdbId: null,
       rating: {
         tmdb: item.vote_average,
+        average: item.vote_average,
       },
       genres: [],
       ids: {
@@ -99,6 +100,7 @@ export class TmdbService {
       imdbId: item.imdb_id,
       rating: {
         tmdb: item.vote_average,
+        average: item.vote_average,
       },
       genres: [],
       ids: {
