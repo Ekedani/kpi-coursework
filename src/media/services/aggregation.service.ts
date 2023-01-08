@@ -83,7 +83,11 @@ export class AggregationService {
         throw new BadRequestException('media in the query is not the same');
       }
     });
-    return { aggregatedItem, warnings };
+    const result = { aggregatedItem, warnings: undefined };
+    if (warnings.length) {
+      result.warnings = warnings;
+    }
+    return result;
   }
 
   async getMediaRating(getSingleMediaDto: GetSingleMediaDto) {
