@@ -1,20 +1,18 @@
 import {
-  Controller,
-  Get,
-  Post,
+  BadRequestException,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseInterceptors,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+  Res,
   UploadedFile,
   UseGuards,
-  Res,
-  Query,
-  ParseUUIDPipe,
-  ParseFilePipe,
-  MaxFileSizeValidator,
-  FileTypeValidator,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CinemasService } from '../services/cinemas.service';
 import { CreateCinemaDto } from '../dto/create-cinema.dto';
@@ -36,6 +34,11 @@ export class CinemasController {
   @UseGuards(AuthGuard(), RoleGuard)
   @UseInterceptors(FileInterceptor('picture'))
   create(@UploadedFile() picture, @Body() createCinemaDto: CreateCinemaDto) {
+    if (picture) {
+      if (picture.mimetype !== 'image/jpeg' || picture.size > 1000 * 1000) {
+        throw new BadRequestException('image must be jpeg with max size 1mb');
+      }
+    }
     return this.cinemasService.create(picture, createCinemaDto);
   }
 
@@ -65,17 +68,14 @@ export class CinemasController {
   @UseInterceptors(FileInterceptor('picture'))
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 2000 }),
-          new FileTypeValidator({ fileType: 'image/jpeg' }),
-        ],
-      }),
-    )
-    picture,
+    @UploadedFile() picture,
     @Body() updateCinemaDto: UpdateCinemaDto,
   ) {
+    if (picture) {
+      if (picture.mimetype !== 'image/jpeg' || picture.size > 1000 * 1000) {
+        throw new BadRequestException('image must be jpeg with max size 1mb');
+      }
+    }
     return this.cinemasService.update(id, picture, updateCinemaDto);
   }
 
