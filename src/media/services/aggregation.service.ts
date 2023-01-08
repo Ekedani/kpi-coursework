@@ -9,7 +9,7 @@ import { FindMediaDto } from '../dto/find-media.dto';
 import { KinopoiskService } from './kinopoisk.service';
 import { TmdbService } from './tmdb.service';
 import { GetSingleMediaDto } from '../dto/get-single-media.dto';
-import { MediaItem } from '../common/mediaItem';
+import { MediaItem } from '../common/media-item';
 import { isEmpty } from 'lodash';
 import searchQueryToKey from '../common/searchQueryToKey';
 import { Cache } from 'cache-manager';

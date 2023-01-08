@@ -3,8 +3,9 @@ import { HttpService } from '@nestjs/axios';
 import { FindMediaDto } from '../dto/find-media.dto';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { MediaItem } from '../common/mediaItem';
+import { MediaItem } from '../common/media-item';
 import { KinopoiskGenresDictionary } from '../common/dictionaries/kinopoisk-genres.dictionary';
+import { DetailedMediaItem } from '../common/detailed-media-item';
 
 @Injectable()
 export class KinopoiskService {
@@ -48,7 +49,8 @@ export class KinopoiskService {
 
   async getSingleMedia(id: string) {
     const response = await this.getSingleMediaRequest(id);
-    return this.convertItemToMedia(response.data);
+    const item = this.convertItemToMedia(response.data);
+    return new DetailedMediaItem({ ...item });
   }
 
   private convertItemToMedia(item): MediaItem {

@@ -3,8 +3,9 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { FindMediaDto } from '../dto/find-media.dto';
 import { firstValueFrom } from 'rxjs';
-import { MediaItem } from '../common/mediaItem';
+import { MediaItem } from '../common/media-item';
 import { TmdbGenresDictionary } from '../common/dictionaries/tmdb-genres.dictionary';
+import { DetailedMediaItem } from '../common/detailed-media-item';
 
 @Injectable()
 export class TmdbService {
@@ -91,8 +92,8 @@ export class TmdbService {
     return mediaItem;
   }
 
-  private convertSingleItemToMedia(item): MediaItem {
-    const mediaItem = new MediaItem({
+  private convertSingleItemToMedia(item): DetailedMediaItem {
+    const mediaItem = new DetailedMediaItem({
       sources: ['tmdb'],
       nameOriginal: item.original_title,
       alternativeNames: [],
@@ -110,6 +111,9 @@ export class TmdbService {
       links: {
         tmdb: `https://www.themoviedb.org/movie/${item.id}/`,
       },
+      overview: item.overview,
+      budget: item.budget,
+      originalLanguage: item.original_language,
     });
     if (item.release_date) {
       mediaItem.year = new Date(item.release_date).getFullYear();
