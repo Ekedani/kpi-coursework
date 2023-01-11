@@ -3,6 +3,10 @@ import { UserRepository } from '../repositories/user.repository';
 import { randomUUID } from 'crypto';
 import { FindUsersDto } from '../dto/find-users.dto';
 
+/**
+ * Summary: This service is responsible for the business logic of managing and
+ * retrieving information about users
+ */
 @Injectable()
 export class UsersService {
   constructor(private userRepository: UserRepository) {}

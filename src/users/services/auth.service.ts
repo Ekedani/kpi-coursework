@@ -11,6 +11,10 @@ import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '../common/user-role.enum';
 import { JwtPayload } from '../common/jwt-payload.interface';
 
+/**
+ * Summary: This service is responsible for the business logic of user login and
+ * registration
+ */
 @Injectable()
 export class AuthService {
   constructor(

@@ -5,6 +5,10 @@ import { CinemaRepository } from '../repositories/cinema.repository';
 import { FindCinemasDto } from '../dto/find-cinemas.dto';
 import { unlinkSync } from 'fs';
 
+/**
+ * Summary: This service is responsible for the business logic of managing and
+ * retrieving information about cinemas
+ */
 @Injectable()
 export class CinemasService {
   constructor(private cinemaRepository: CinemaRepository) {}

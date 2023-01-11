@@ -6,6 +6,9 @@ import { User } from '../entities/user.entity';
 import { JwtPayload } from '../common/jwt-payload.interface';
 import { ConfigService } from '@nestjs/config';
 
+/**
+ * Summary: This service is responsible for the business logic of the access token
+ */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
