@@ -7,6 +7,9 @@ import { MediaItem } from '../common/media-item';
 import { TmdbGenresDictionary } from '../common/dictionaries/tmdb-genres.dictionary';
 import { DetailedMediaItem } from '../common/detailed-media-item';
 
+/**
+ * Summary: Service responsible for pulling data from the source "TMDB"
+ */
 @Injectable()
 export class TmdbService {
   public readonly serviceName: string = 'tmdb';
@@ -21,6 +24,9 @@ export class TmdbService {
     this.apiKey = configService.get('media.tmdbKey');
   }
 
+  /**
+   * Summary: Pulls data by specified keywords and filters
+   */
   async findMedia(findMediaDto: FindMediaDto) {
     const searchParams = {
       api_key: this.apiKey,
@@ -47,11 +53,17 @@ export class TmdbService {
     return filteredData;
   }
 
+  /**
+   * Summary: Pulls media data by ID
+   */
   async getSingleMedia(id: string) {
     const response = await this.getSingleMediaRequest(id);
     return this.convertSingleItemToMedia(response.data);
   }
 
+  /**
+   * Summary: Brings data from the source to a common interface
+   */
   private convertItemToMedia(item): MediaItem {
     const mediaItem = new MediaItem({
       sources: ['tmdb'],
@@ -92,6 +104,9 @@ export class TmdbService {
     return mediaItem;
   }
 
+  /**
+   * Summary: Brings single media from the source to a common interface
+   */
   private convertSingleItemToMedia(item): DetailedMediaItem {
     const mediaItem = new DetailedMediaItem({
       sources: ['tmdb'],
@@ -132,6 +147,9 @@ export class TmdbService {
     return mediaItem;
   }
 
+  /**
+   * Summary: Helper function for HTTP API search request
+   */
   private findMediaRequest({
     searchParams,
     page,
@@ -150,6 +168,9 @@ export class TmdbService {
     );
   }
 
+  /**
+   * Summary: Helper function for HTTP API get by id request
+   */
   private getSingleMediaRequest(id: string) {
     return firstValueFrom(
       this.httpService.get(`${this.apiHost}/movie/${id}`, {
@@ -161,6 +182,9 @@ export class TmdbService {
     );
   }
 
+  /**
+   * Summary: Additionally filters data on request
+   */
   private filterMedia(data: Array<MediaItem>, findMediaDto: FindMediaDto) {
     if (findMediaDto.yearTo) {
       data = data.filter((item) => item.year <= findMediaDto.yearTo);
@@ -177,6 +201,9 @@ export class TmdbService {
     return data;
   }
 
+  /**
+   * Summary: Finds IMDb IDs for the specified media
+   */
   private async findImdbIds(data) {
     const detailedInfo = await Promise.allSettled(
       data.map((item) => {

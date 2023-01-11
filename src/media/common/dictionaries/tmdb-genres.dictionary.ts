@@ -1,3 +1,6 @@
+/**
+ * Summary: Dictionary for data normalization
+ */
 export const TmdbGenresDictionary = [
   {
     id: 28,

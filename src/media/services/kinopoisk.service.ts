@@ -7,6 +7,9 @@ import { MediaItem } from '../common/media-item';
 import { KinopoiskGenresDictionary } from '../common/dictionaries/kinopoisk-genres.dictionary';
 import { DetailedMediaItem } from '../common/detailed-media-item';
 
+/**
+ * Summary: Service responsible for pulling data from the source "Kinopoisk"
+ */
 @Injectable()
 export class KinopoiskService {
   public readonly serviceName: string = 'kinopoisk';
@@ -21,6 +24,9 @@ export class KinopoiskService {
     this.apiKey = configService.get('media.kinopoiskKey');
   }
 
+  /**
+   * Summary: Pulls data by specified keywords and filters
+   */
   async findMedia(findMediaDto: FindMediaDto) {
     const searchParams = {
       keyword: findMediaDto.keyword,
@@ -47,12 +53,18 @@ export class KinopoiskService {
     return data.items.map((item) => this.convertItemToMedia(item));
   }
 
+  /**
+   * Summary: Pulls media data by ID
+   */
   async getSingleMedia(id: string) {
     const response = await this.getSingleMediaRequest(id);
     const item = this.convertItemToMedia(response.data);
     return new DetailedMediaItem({ ...item });
   }
 
+  /**
+   * Summary: Brings data from the source to a common interface
+   */
   private convertItemToMedia(item): MediaItem {
     const mediaItem = new MediaItem({
       sources: ['kinopoisk'],
@@ -86,6 +98,9 @@ export class KinopoiskService {
     return mediaItem;
   }
 
+  /**
+   * Summary: Helper function for HTTP API search request
+   */
   private findMediaRequest({
     searchParams,
     page,
@@ -107,6 +122,9 @@ export class KinopoiskService {
     );
   }
 
+  /**
+   * Summary: Helper function for HTTP API get by id request
+   */
   private getSingleMediaRequest(id: string) {
     return firstValueFrom(
       this.httpService.get(`${this.apiHost}/api/v2.2/films/${id}`, {

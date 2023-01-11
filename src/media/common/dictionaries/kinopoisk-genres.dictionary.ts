@@ -1,3 +1,6 @@
+/**
+ * Summary: Dictionary for data normalization
+ */
 export const KinopoiskGenresDictionary = [
   {
     id: 1,

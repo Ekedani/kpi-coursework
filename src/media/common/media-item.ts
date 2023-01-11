@@ -1,5 +1,8 @@
 import { union, merge } from 'lodash';
 
+/**
+ * Summary: This class represents a normalized media element
+ */
 export class MediaItem {
   constructor(param: {
     alternativeNames: any;
@@ -42,6 +45,9 @@ export class MediaItem {
     [service: string]: string;
   };
 
+  /**
+   * Summary: Combines media content from two sources into one element
+   */
   public join(media: MediaItem): MediaItem {
     const joined = new MediaItem({
       sources: union(this.sources, media.sources),
@@ -64,6 +70,9 @@ export class MediaItem {
     return joined;
   }
 
+  /**
+   * Summary: Checks whether media content from different sources is the same
+   */
   public isSameMedia(media: MediaItem): boolean {
     const sameImdbId = this.imdbId === media.imdbId;
     if (sameImdbId && this.imdbId) {

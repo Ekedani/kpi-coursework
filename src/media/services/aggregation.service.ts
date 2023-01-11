@@ -11,9 +11,13 @@ import { TmdbService } from './tmdb.service';
 import { GetSingleMediaDto } from '../dto/get-single-media.dto';
 import { MediaItem } from '../common/media-item';
 import { isEmpty } from 'lodash';
-import searchQueryToKey from '../common/searchQueryToKey';
+import searchQueryToKey from '../common/search-query-to-key';
 import { Cache } from 'cache-manager';
 
+/**
+ * Summary: Service responsible for aggregation of data from multiple sources
+ * and their normalization
+ */
 @Injectable()
 export class AggregationService {
   constructor(
@@ -22,6 +26,9 @@ export class AggregationService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
+  /**
+   * Summary: Searches media by specified keywords and filters
+   */
   async findMedia(findMediaDto: FindMediaDto) {
     const cacheKey = searchQueryToKey(findMediaDto);
     const cache = await this.getMediaCache(cacheKey);
@@ -58,6 +65,9 @@ export class AggregationService {
     return { ...result, pages };
   }
 
+  /**
+   * Summary: Gets detailed information about a particular media
+   */
   async getSingleMedia(getSingleMediaDto: GetSingleMediaDto) {
     const requests: Array<Promise<any>> = [];
     const dataSources: Array<string> = [];
@@ -90,6 +100,9 @@ export class AggregationService {
     return result;
   }
 
+  /**
+   * Summary: Gets detailed information about a particular media rating
+   */
   async getMediaRating(getSingleMediaDto: GetSingleMediaDto) {
     const { aggregatedItem, warnings } = await this.getSingleMedia(
       getSingleMediaDto,
@@ -102,7 +115,7 @@ export class AggregationService {
   }
 
   /**
-   * Summary. Queries data from data sources and returns successful responses and warnings
+   * Summary: Queries data from data sources and returns successful responses and warnings
    */
   private async handleRequests(
     dataSources: Array<string>,
@@ -123,7 +136,7 @@ export class AggregationService {
   }
 
   /**
-   * Summary. Filters data that does not match the search criteria after aggregation
+   * Summary: Filters data that does not match the search criteria after aggregation
    */
   private filterAggregated(
     items: Array<MediaItem>,
@@ -138,6 +151,9 @@ export class AggregationService {
     return items;
   }
 
+  /**
+   * Summary: Splits the result into pages
+   */
   private paginateMedia(items: Array<MediaItem>, findMediaDto: FindMediaDto) {
     const page = findMediaDto.page ?? 1;
     const take = findMediaDto.itemsPerPage ?? 20;
@@ -149,7 +165,7 @@ export class AggregationService {
   }
 
   /**
-   * Summary. Finds the cache by the search query key
+   * Summary: Finds the cache by the search query key
    */
   async getMediaCache(
     cacheKey,
@@ -163,7 +179,7 @@ export class AggregationService {
   }
 
   /**
-   * Summary. Caches response data for quick access
+   * Summary: Caches response data for quick access
    */
   async setMediaCache(cacheKey, { dataSources, total, items }): Promise<void> {
     await this.cacheManager.set(
@@ -174,7 +190,7 @@ export class AggregationService {
   }
 
   /**
-   * Summary. Calls the aggregation algorithms depending on the number of data sources
+   * Summary: Calls the aggregation algorithms depending on the number of data sources
    */
   private aggregateMedia(...args): Array<MediaItem> {
     let items: Array<MediaItem> = [];
@@ -191,6 +207,9 @@ export class AggregationService {
     return items;
   }
 
+  /**
+   * Summary: Aggregates data from two data sources with n-square complexity
+   */
   private squareAggregation(
     a: Array<MediaItem>,
     b: Array<MediaItem>,

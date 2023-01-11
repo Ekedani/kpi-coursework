@@ -10,6 +10,10 @@ import { AggregationService } from '../services/aggregation.service';
 import { FindMediaDto } from '../dto/find-media.dto';
 import { GetSingleMediaDto } from '../dto/get-single-media.dto';
 
+/**
+ * Summary: The main module controller responsible for providing access to media
+ * aggregation
+ */
 @Controller('media')
 @UseGuards(ApiKeyGuard)
 export class MediaController {

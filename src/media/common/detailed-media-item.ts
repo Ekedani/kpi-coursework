@@ -1,6 +1,9 @@
 import { MediaItem } from './media-item';
 import { merge, union } from 'lodash';
 
+/**
+ * Summary: This class represents a normalized media element with details
+ */
 export class DetailedMediaItem extends MediaItem {
   constructor(param: {
     alternativeNames: any;
@@ -37,6 +40,9 @@ export class DetailedMediaItem extends MediaItem {
   budget?: number;
   originalLanguage?: string;
 
+  /**
+   * Summary: Combines media content from two sources into one element
+   */
   public join(media: DetailedMediaItem): DetailedMediaItem {
     const joined = new DetailedMediaItem({
       sources: union(this.sources, media.sources),
