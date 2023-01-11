@@ -11,6 +11,10 @@ import * as redisStore from 'cache-manager-redis-store';
 import redisConfig from '../config/redis.config';
 import { ClientOpts } from 'redis';
 
+/**
+ * Summary: This module is responsible for automatic aggregation and normalization
+ * of media content from online cinemas
+ */
 @Module({
   imports: [
     HttpModule,

@@ -25,6 +25,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiKeyGuard } from '../../users/guards/api-key.guard';
 import { FindCinemasDto } from '../dto/find-cinemas.dto';
 
+/**
+ * Summary: This controller is responsible for cinema access and management
+ */
 @Controller('cinemas')
 export class CinemasController {
   constructor(private readonly cinemasService: CinemasService) {}

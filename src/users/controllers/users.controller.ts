@@ -18,6 +18,10 @@ import { User } from '../entities/user.entity';
 import { UserRole } from '../common/user-role.enum';
 import { FindUsersDto } from '../dto/find-users.dto';
 
+/**
+ * Summary: This controller is responsible for user management, personal data
+ * access and API key management
+ */
 @Controller('users')
 @UseGuards(AuthGuard())
 export class UsersController {

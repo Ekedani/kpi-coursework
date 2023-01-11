@@ -7,6 +7,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Cinema } from './entities/cinema.entity';
 import { CinemaRepository } from './repositories/cinema.repository';
 
+/**
+ * Summary: This module is responsible for cinema access and management
+ */
 @Module({
   imports: [
     UsersModule,

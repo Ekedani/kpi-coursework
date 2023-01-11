@@ -12,6 +12,10 @@ import jwtConfig from '../config/jwt.config';
 import { User } from './entities/user.entity';
 import { JwtStrategy } from './services/jwt.strategy';
 
+/**
+ * Summary: This module is responsible for user management, authorization and
+ * authentication
+ */
 @Module({
   imports: [
     ConfigModule.forFeature(jwtConfig),
