@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6378:6379"
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5431:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+  migrate:
+    image: ekedani/cinemary-migrations:1.0
+    command: [ "migrate", "-path", "/migrations", "-database",  "postgres://cw_admin:cw_admin@${DB}:5432/cw_db?sslmode=disable", "goto", "110120231309" ]
+    environment:
+      DB: postgres
+    depends_on:
+      - postgres
+
+  cinemary-application:
+    image: ekedani/cinemary:1.0
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_TOKEN_TTL: ${JWT_TOKEN_TTL}
+      KINOPOISK_HOST: ${KINOPOISK_HOST}
+      KINOPOISK_KEY: ${KINOPOISK_KEY}
+      TMDB_HOST: ${TMDB_HOST}
+      TMDB_KEY: ${TMDB_KEY}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    depends_on:
+      - postgres
+      - redis
+
