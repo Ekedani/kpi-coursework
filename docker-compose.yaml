@@ -16,9 +16,7 @@ services:
 
   migrate:
     image: ekedani/cinemary-migrations:1.0
-    command: [ "migrate", "-path", "/migrations", "-database",  "postgres://cw_admin:cw_admin@${DB}:5432/cw_db?sslmode=disable", "goto", "110120231309" ]
-    environment:
-      DB: postgres
+    command: [ "-path", "/migrations", "-database",  "postgres://cw_admin:cw_admin@postgres:5432/cw_db?sslmode=disable", "goto", "110120231309" ]
     depends_on:
       - postgres
 
