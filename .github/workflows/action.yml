@@ -20,5 +20,5 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          tags: ${{secrets.DOCKER_HUB_USERNAME}}/devops-nodejs-app:latest
+          tags: ${{secrets.DOCKER_HUB_USERNAME}}/cinemary:latest
           push: true
